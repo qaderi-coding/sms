@@ -1,0 +1,188 @@
+﻿@font-face {
+    font-family: 'Bahij Nazanin';
+    font-weight: normal;
+    src: url('assets/fonts/Bahij Nazanin-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Nazanin';
+    font-weight: bold;
+    src: url('assets/fonts/Bahij Nazanin-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Mitra';
+    font-weight: normal;
+    src: url('assets/fonts/Bahij Mitra-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Mitra';
+    font-weight: bold;
+    src: url('assets/fonts/Bahij Mitra-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Zar';
+    font-weight: normal;
+    src: url('assets/fonts/Bahij Zar-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Zar';
+    font-weight: bold;
+    src: url('assets/fonts/Bahij Zar-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Titr';
+    font-weight: bold;
+    src: url('assets/fonts/Bahij Titr-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Bahij Nassim';
+    font-weight: normal;
+    src: url("assets/fonts/Bahij Nassim-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Bahij Nassim';
+    font-weight: bold;
+    src: url("assets/fonts/Bahij Nassim-Bold.ttf");
+}
+
+/* Noto Sans Arabic */
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 100;
+    src: url("assets/fonts/NotoKufiArabic-Thin.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 200;
+    src: url("assets/fonts/NotoKufiArabic-ExtraLight.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 300;
+    src: url("assets/fonts/NotoKufiArabic-Light.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 400;
+    src: url("assets/fonts/NotoKufiArabic-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 500;
+    src: url("assets/fonts/NotoKufiArabic-Medium.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 600;
+    src: url("assets/fonts/NotoKufiArabic-SemiBold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 700;
+    src: url("assets/fonts/NotoKufiArabic-Bold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 800;
+    src: url("assets/fonts/NotoKufiArabic-ExtraBold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 900;
+    src: url("assets/fonts/NotoKufiArabic-Black.ttf");
+}
+
+/* Noto Sans Arabic */
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 100;
+    src: url("assets/fonts/NotoSansArabic-Thin.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 200;
+    src: url("assets/fonts/NotoSansArabic-ExtraLight.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 300;
+    src: url("assets/fonts/NotoSansArabic-Light.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 400;
+    src: url("assets/fonts/NotoSansArabic-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 500;
+    src: url("assets/fonts/NotoSansArabic-Medium.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 600;
+    src: url("assets/fonts/NotoSansArabic-SemiBold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 700;
+    src: url("assets/fonts/NotoSansArabic-Bold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 800;
+    src: url("assets/fonts/NotoSansArabic-ExtraBold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-weight: 900;
+    src: url("assets/fonts/NotoSansArabic-Black.ttf");
+}
+
+/* Noto Naskh Arabic */
+@font-face {
+    font-family: 'Noto Naskh Arabic';
+    font-weight: 400;
+    src: url("assets/fonts/NotoNaskhArabic-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Naskh Arabic';
+    font-weight: 500;
+    src: url("assets/fonts/NotoNaskhArabic-Medium.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Naskh Arabic';
+    font-weight: 600;
+    src: url("assets/fonts/NotoNaskhArabic-SemiBold.ttf");
+}
+
+@font-face {
+    font-family: 'Noto Naskh Arabic';
+    font-weight: 700;
+    src: url("assets/fonts/NotoNaskhArabic-Bold.ttf");
+}

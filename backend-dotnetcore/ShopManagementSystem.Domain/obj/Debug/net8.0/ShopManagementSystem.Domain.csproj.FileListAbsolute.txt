@@ -1,0 +1,12 @@
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/bin/Debug/net8.0/ShopManagementSystem.Domain.deps.json
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/bin/Debug/net8.0/ShopManagementSystem.Domain.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/bin/Debug/net8.0/ShopManagementSystem.Domain.pdb
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.AssemblyInfoInputs.cache
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.AssemblyInfo.cs
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.csproj.CoreCompileInputs.cache
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.sourcelink.json
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/refint/ShopManagementSystem.Domain.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ShopManagementSystem.Domain.pdb
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Domain/obj/Debug/net8.0/ref/ShopManagementSystem.Domain.dll
