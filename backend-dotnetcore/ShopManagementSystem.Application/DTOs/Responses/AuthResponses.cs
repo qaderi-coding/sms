@@ -16,3 +16,13 @@ public class RegisterResponse
     public string Message { get; set; } = string.Empty;
     public List<string> Errors { get; set; } = new();
 }
+
+public class UserDetailsResponse
+{
+    public string Id { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public List<string> Roles { get; set; } = new();
+    public bool EmailConfirmed { get; set; }
+}

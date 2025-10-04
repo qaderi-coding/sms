@@ -48,13 +48,15 @@ public static class DatabaseSeeder
         {
             var adminUser = new IdentityUser
             {
-                UserName = "Admin User",
+                UserName = "admin@shop.com",
                 Email = "admin@shop.com",
                 EmailConfirmed = true
             };
             var result = await userManager.CreateAsync(adminUser, "Admin123!");
             if (result.Succeeded)
             {
+                await userManager.AddClaimAsync(adminUser, new System.Security.Claims.Claim("FirstName", "Admin"));
+                await userManager.AddClaimAsync(adminUser, new System.Security.Claims.Claim("LastName", "User"));
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }
