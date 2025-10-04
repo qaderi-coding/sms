@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ShopManagementSystem.Application.DTOs;
 using ShopManagementSystem.Domain.Entities;
 using ShopManagementSystem.Domain.Interfaces;
 using ShopManagementSystem.Domain.Enums;
@@ -20,24 +21,51 @@ public class LoansController : ControllerBase
 
     [HttpGet]
     [SwaggerOperation(Summary = "Get all loans")]
-    public async Task<ActionResult<IEnumerable<Loan>>> GetLoans()
+    [SwaggerResponse(200, "Loans retrieved successfully", typeof(IEnumerable<LoanDto>))]
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetLoans()
     {
         var loans = await _unitOfWork.Loans.GetAllAsync();
-        return Ok(loans);
+        var loanDtos = loans.Select(l => new LoanDto
+        {
+            Id = l.Id,
+            PartyType = l.PartyType,
+            PartyId = l.PartyId,
+            PartyName = GetPartyName(l.PartyType, l.PartyId),
+            Amount = l.Amount,
+            Currency = l.Currency,
+            Status = l.Status,
+            CreatedAt = l.CreatedAt
+        });
+        return Ok(loanDtos);
     }
 
     [HttpGet("{id}")]
     [SwaggerOperation(Summary = "Get loan by ID")]
-    public async Task<ActionResult<Loan>> GetLoan(int id)
+    [SwaggerResponse(200, "Loan found", typeof(LoanDto))]
+    [SwaggerResponse(404, "Loan not found")]
+    public async Task<ActionResult<LoanDto>> GetLoan(int id)
     {
         var loan = await _unitOfWork.Loans.GetByIdAsync(id);
         if (loan == null) return NotFound();
-        return Ok(loan);
+        
+        var loanDto = new LoanDto
+        {
+            Id = loan.Id,
+            PartyType = loan.PartyType,
+            PartyId = loan.PartyId,
+            PartyName = GetPartyName(loan.PartyType, loan.PartyId),
+            Amount = loan.Amount,
+            Currency = loan.Currency,
+            Status = loan.Status,
+            CreatedAt = loan.CreatedAt
+        };
+        return Ok(loanDto);
     }
 
     [HttpPost("give")]
     [SwaggerOperation(Summary = "Give loan", Description = "Records a loan given to customer/supplier")]
-    public async Task<ActionResult<Loan>> GiveLoan([FromBody] Loan loan)
+    [SwaggerResponse(201, "Loan given successfully", typeof(LoanDto))]
+    public async Task<ActionResult<LoanDto>> GiveLoan([FromBody] CreateLoanDto createLoanDto)
     {
         await _unitOfWork.BeginTransactionAsync();
         
@@ -46,25 +74,46 @@ public class LoansController : ControllerBase
             var transaction = new Transaction
             {
                 Type = TransactionType.LoanGiven,
-                PartyType = loan.PartyType,
-                PartyId = loan.PartyId,
-                OriginalAmount = loan.Amount,
-                Currency = loan.Currency,
+                PartyType = createLoanDto.PartyType,
+                PartyId = createLoanDto.PartyId,
+                OriginalAmount = createLoanDto.Amount,
+                Currency = createLoanDto.Currency,
                 ExchangeRateToUsd = 1.0m,
-                AmountUsd = loan.Amount,
+                AmountUsd = createLoanDto.Amount,
                 Notes = "Loan Given"
             };
 
             var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync();
 
-            loan.TransactionId = createdTransaction.Id;
-            loan.Status = LoanStatus.Active;
+            var loan = new Loan
+            {
+                TransactionId = createdTransaction.Id,
+                PartyType = createLoanDto.PartyType,
+                PartyId = createLoanDto.PartyId,
+                Amount = createLoanDto.Amount,
+                Currency = createLoanDto.Currency,
+                Status = LoanStatus.Active
+            };
+            
             var createdLoan = await _unitOfWork.Loans.AddAsync(loan);
             await _unitOfWork.SaveChangesAsync();
 
             await _unitOfWork.CommitTransactionAsync();
-            return CreatedAtAction(nameof(GetLoan), new { id = createdLoan.Id }, createdLoan);
+            
+            var loanDto = new LoanDto
+            {
+                Id = createdLoan.Id,
+                PartyType = createdLoan.PartyType,
+                PartyId = createdLoan.PartyId,
+                PartyName = GetPartyName(createdLoan.PartyType, createdLoan.PartyId),
+                Amount = createdLoan.Amount,
+                Currency = createdLoan.Currency,
+                Status = createdLoan.Status,
+                CreatedAt = createdLoan.CreatedAt
+            };
+            
+            return CreatedAtAction(nameof(GetLoan), new { id = loanDto.Id }, loanDto);
         }
         catch
         {
@@ -75,7 +124,8 @@ public class LoansController : ControllerBase
 
     [HttpPost("receive")]
     [SwaggerOperation(Summary = "Receive loan", Description = "Records a loan received from customer/supplier")]
-    public async Task<ActionResult<Loan>> ReceiveLoan([FromBody] Loan loan)
+    [SwaggerResponse(201, "Loan received successfully", typeof(LoanDto))]
+    public async Task<ActionResult<LoanDto>> ReceiveLoan([FromBody] CreateLoanDto createLoanDto)
     {
         await _unitOfWork.BeginTransactionAsync();
         
@@ -84,25 +134,46 @@ public class LoansController : ControllerBase
             var transaction = new Transaction
             {
                 Type = TransactionType.LoanReceived,
-                PartyType = loan.PartyType,
-                PartyId = loan.PartyId,
-                OriginalAmount = loan.Amount,
-                Currency = loan.Currency,
+                PartyType = createLoanDto.PartyType,
+                PartyId = createLoanDto.PartyId,
+                OriginalAmount = createLoanDto.Amount,
+                Currency = createLoanDto.Currency,
                 ExchangeRateToUsd = 1.0m,
-                AmountUsd = loan.Amount,
+                AmountUsd = createLoanDto.Amount,
                 Notes = "Loan Received"
             };
 
             var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync();
 
-            loan.TransactionId = createdTransaction.Id;
-            loan.Status = LoanStatus.Active;
+            var loan = new Loan
+            {
+                TransactionId = createdTransaction.Id,
+                PartyType = createLoanDto.PartyType,
+                PartyId = createLoanDto.PartyId,
+                Amount = createLoanDto.Amount,
+                Currency = createLoanDto.Currency,
+                Status = LoanStatus.Active
+            };
+            
             var createdLoan = await _unitOfWork.Loans.AddAsync(loan);
             await _unitOfWork.SaveChangesAsync();
 
             await _unitOfWork.CommitTransactionAsync();
-            return CreatedAtAction(nameof(GetLoan), new { id = createdLoan.Id }, createdLoan);
+            
+            var loanDto = new LoanDto
+            {
+                Id = createdLoan.Id,
+                PartyType = createdLoan.PartyType,
+                PartyId = createdLoan.PartyId,
+                PartyName = GetPartyName(createdLoan.PartyType, createdLoan.PartyId),
+                Amount = createdLoan.Amount,
+                Currency = createdLoan.Currency,
+                Status = createdLoan.Status,
+                CreatedAt = createdLoan.CreatedAt
+            };
+            
+            return CreatedAtAction(nameof(GetLoan), new { id = loanDto.Id }, loanDto);
         }
         catch
         {
@@ -113,7 +184,9 @@ public class LoansController : ControllerBase
 
     [HttpPut("{id}/close")]
     [SwaggerOperation(Summary = "Close loan", Description = "Marks a loan as closed")]
-    public async Task<ActionResult<Loan>> CloseLoan(int id)
+    [SwaggerResponse(200, "Loan closed successfully", typeof(LoanDto))]
+    [SwaggerResponse(404, "Loan not found")]
+    public async Task<ActionResult<LoanDto>> CloseLoan(int id)
     {
         var loan = await _unitOfWork.Loans.GetByIdAsync(id);
         if (loan == null) return NotFound();
@@ -123,7 +196,31 @@ public class LoansController : ControllerBase
 
         await _unitOfWork.Loans.UpdateAsync(loan);
         await _unitOfWork.SaveChangesAsync();
-        return Ok(loan);
+        
+        var loanDto = new LoanDto
+        {
+            Id = loan.Id,
+            PartyType = loan.PartyType,
+            PartyId = loan.PartyId,
+            PartyName = GetPartyName(loan.PartyType, loan.PartyId),
+            Amount = loan.Amount,
+            Currency = loan.Currency,
+            Status = loan.Status,
+            CreatedAt = loan.CreatedAt
+        };
+        
+        return Ok(loanDto);
+    }
+    
+    private string GetPartyName(PartyType partyType, int partyId)
+    {
+        // This is a simplified implementation - in a real scenario, you'd fetch the actual name
+        return partyType switch
+        {
+            PartyType.Customer => $"Customer-{partyId}",
+            PartyType.Supplier => $"Supplier-{partyId}",
+            _ => "Unknown"
+        };
     }
 
     [HttpDelete("{id}")]

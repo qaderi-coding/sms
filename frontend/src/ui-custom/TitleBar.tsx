@@ -23,7 +23,7 @@ import StickyBar from './StickyBar';
 // import UseConfig from '../hooks/useConfig';
 // import { IComponentPermision } from 'apps/authentication/permission/ComponentPermissionTypes';
 import useAuth from 'hooks/useAuth';
-import { getLocale } from 'i18n';
+// import { getLocale } from 'i18n';
 
 interface TitleBarProps {
   title: string;
@@ -87,7 +87,7 @@ function TitleBar(props: TitleBarProps) {
   // const [trans] = useTranslation();
   // const config = UseConfig();
   const auth = useAuth();
-  const locale = getLocale();
+  // const locale = getLocale();
 
   useEffect(() => {
     const attachFunctionKeys = (event: any) => {
@@ -200,7 +200,7 @@ function TitleBar(props: TitleBarProps) {
                 !(props.selectedItem > 0)
               }
             >
-              {locale === 'en' ? <ArrowBack color={'secondary'} /> : <ArrowForward color={'secondary'} />}
+              {/* {locale === 'en' ? <ArrowBack color={'secondary'} /> : <ArrowForward color={'secondary'} />} */}
             </ActionButton>
             <ActionButton
               sx={{
@@ -226,7 +226,7 @@ function TitleBar(props: TitleBarProps) {
                 !(props.selectedItem < props.itemsCount - 1)
               }
             >
-              {locale === 'en' ? <ArrowForward color={'secondary'} /> : <ArrowBack color={'secondary'} />}
+              {/* {locale === 'en' ? <ArrowForward color={'secondary'} /> : <ArrowBack color={'secondary'} />} */}
             </ActionButton>
             <ActionButton
               // title={trans('buttons.create_page') + ' (Alt+9)'}

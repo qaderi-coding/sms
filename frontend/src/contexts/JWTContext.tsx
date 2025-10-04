@@ -88,8 +88,18 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
           try {
-            const response = await axios.get('/api/auth/user/');
-            const user = response.data;
+            const response = await axios.get('/api/auth/me');
+            const userData = response.data;
+            
+            const user = {
+              id: userData.id,
+              email: userData.email,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              name: `${userData.firstName} ${userData.lastName}`,
+              roles: userData.roles || [],
+              emailConfirmed: userData.emailConfirmed
+            };
 
             dispatchLocal({
               type: 'INITIALIZE',
@@ -129,18 +139,27 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
     init();
   }, []);
 
-  const loginHandler = async (username: string, password: string): Promise<void> => {
-    const response = await axios.post('/api/auth/login/', { username, password });
-    const { access, user } = response.data;
+  const loginHandler = async (email: string, password: string): Promise<void> => {
+    const response = await axios.post('/api/auth/login', { email, password });
+    const { token, firstName, lastName, email: userEmail, roles } = response.data;
+    
+    const user = {
+      id: response.data.id || userEmail,
+      email: userEmail,
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`,
+      roles
+    };
 
-    setSession(access);
+    setSession(token);
 
     dispatchLocal({
       type: 'LOGIN',
       payload: { isLoggedIn: true, user }
     });
 
-    dispatch(login({ user, token: access }));
+    dispatch(login({ user, token }));
   };
 
   const logoutHandler = () => {

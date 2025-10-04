@@ -48,25 +48,24 @@ export default function AuthLogin({ isDemo = false }) {
     <>
       <Formik
         initialValues={{
-          username: 'admin',
-          password: '123456',
+          email: 'qaderi@example.com',
+          password: 'Qaderi@786',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          username: Yup.string().max(255).required('Username is required'),
+          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string()
             .required('Password is required')
-            .test('no-leading-trailing-whitespace', 'Password cannot start or end with spaces', (value) => value === value.trim())
-            .max(10, 'Password must be less than 10 characters')
+            .min(6, 'Password must be at least 6 characters')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            await login(values.username, values.password);
+            await login(values.email, values.password);
             setStatus({ success: true });
             navigate('/dashboard/default', { replace: true });
           } catch (err) {
             setStatus({ success: false });
-            setErrors({ submit: err.message || 'Login failed' });
+            setErrors({ submit: err.response?.data?.message || err.message || 'Login failed' });
           } finally {
             setSubmitting(false);
           }
@@ -77,22 +76,22 @@ export default function AuthLogin({ isDemo = false }) {
             <Grid container spacing={3}>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="username-login">Username</InputLabel>
+                  <InputLabel htmlFor="email-login">Email</InputLabel>
                   <OutlinedInput
-                    id="username-login"
-                    type="text"
-                    value={values.username}
-                    name="username"
+                    id="email-login"
+                    type="email"
+                    value={values.email}
+                    name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter username"
+                    placeholder="Enter email address"
                     fullWidth
-                    error={Boolean(touched.username && errors.username)}
+                    error={Boolean(touched.email && errors.email)}
                   />
                 </Stack>
-                {touched.username && errors.username && (
-                  <FormHelperText error id="standard-weight-helper-text-username-login">
-                    {errors.username}
+                {touched.email && errors.email && (
+                  <FormHelperText error id="standard-weight-helper-text-email-login">
+                    {errors.email}
                   </FormHelperText>
                 )}
               </Grid>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShopManagementSystem.Application.DTOs.Requests;
@@ -37,7 +38,7 @@ public class AuthController : ControllerBase
     {
         var user = new IdentityUser
         {
-            UserName = $"{request.FirstName} {request.LastName}",
+            UserName = request.Email, // Use email as username to avoid validation issues
             Email = request.Email
         };
 
@@ -45,6 +46,10 @@ public class AuthController : ControllerBase
 
         if (result.Succeeded)
         {
+            // Store first and last name in claims
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("FirstName", request.FirstName));
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("LastName", request.LastName));
+            
             // Assign default role
             await _userManager.AddToRoleAsync(user, "User");
             
@@ -82,17 +87,57 @@ public class AuthController : ControllerBase
         }
 
         var roles = await _userManager.GetRolesAsync(user);
+        var claims = await _userManager.GetClaimsAsync(user);
+        
+        var firstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value ?? "";
+        var lastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
+        
         var token = await _tokenService.GenerateTokenAsync(user.Id, user.UserName!, user.Email!, roles);
 
-        var nameParts = user.UserName?.Split(' ', 2) ?? new[] { "", "" };
         return Ok(new LoginResponse
         {
             Token = token,
             Email = user.Email!,
-            FirstName = nameParts.Length > 0 ? nameParts[0] : "",
-            LastName = nameParts.Length > 1 ? nameParts[1] : "",
+            FirstName = firstName,
+            LastName = lastName,
             Roles = roles.ToList(),
             ExpiresAt = DateTime.Now.AddHours(24)
+        });
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Get current user details")]
+    [SwaggerResponse(200, "User details retrieved successfully", typeof(UserDetailsResponse))]
+    [SwaggerResponse(401, "Unauthorized")]
+    public async Task<ActionResult<UserDetailsResponse>> GetCurrentUser()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var claims = await _userManager.GetClaimsAsync(user);
+        
+        var firstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value ?? "";
+        var lastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
+
+        return Ok(new UserDetailsResponse
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            FirstName = firstName,
+            LastName = lastName,
+            Roles = roles.ToList(),
+            EmailConfirmed = user.EmailConfirmed
         });
     }
 
