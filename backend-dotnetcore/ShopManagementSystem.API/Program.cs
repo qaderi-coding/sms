@@ -59,9 +59,9 @@ builder.Services.AddSwaggerGen(c =>
     c.DescribeAllParametersInCamelCase();
 });
 
-// Add Entity Framework
+// Add Entity Framework with SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
