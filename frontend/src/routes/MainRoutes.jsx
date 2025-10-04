@@ -18,7 +18,9 @@ const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')))
 
 // render - shop management pages
 const ShopPage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const SalesList = Loadable(lazy(() => import('pages/sales/SalesList')));
+const SalesList = Loadable(lazy(() => import('apps/sales/pages/SalesList')));
+const CreateSale = Loadable(lazy(() => import('apps/sales/pages/CreateSale')));
+const InvoicePrint = Loadable(lazy(() => import('apps/sales/print/InvoicePrint')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -63,8 +65,10 @@ const MainRoutes = {
     {
       path: 'sales',
       children: [
-        { path: 'create', element: <ShopPage /> },
+        { path: 'create', element: <CreateSale /> },
         { path: 'list', element: <SalesList /> },
+        { path: 'edit/:id', element: <CreateSale /> },
+        { path: 'print/:id', element: <InvoicePrint /> },
         { path: 'returns', element: <ShopPage /> }
       ]
     },

@@ -1,0 +1,16 @@
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/bin/Debug/net8.0/ShopManagementSystem.Application.deps.json
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/bin/Debug/net8.0/ShopManagementSystem.Application.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/bin/Debug/net8.0/ShopManagementSystem.Application.pdb
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/bin/Debug/net8.0/ShopManagementSystem.Domain.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/bin/Debug/net8.0/ShopManagementSystem.Domain.pdb
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.csproj.AssemblyReference.cache
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.AssemblyInfoInputs.cache
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.AssemblyInfo.cs
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.csproj.CoreCompileInputs.cache
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.sourcelink.json
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopMana.C85078CB.Up2Date
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/refint/ShopManagementSystem.Application.dll
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ShopManagementSystem.Application.pdb
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/obj/Debug/net8.0/ref/ShopManagementSystem.Application.dll

@@ -1,0 +1,49 @@
+﻿{
+    "app": {
+        "title": "Afghanistan Revenue System",
+        "author": "Ministry of Finance, Afghanistan Revenue Department",
+        "description": "Afghanistan revenue system management",
+        "keywords": "Afghanistan Revenue, Afghanistan Revenue System, Afghanistan Revenue Management System",
+        "copyright": "{{year}} All Rights Reserved",
+        "version": "Version 0.0.1"
+    },
+    "navigation": {},
+    "statusCodes": {
+        "unknown": "An unknown error occured on system",
+        "network": "A network related issue prevents accessing system",
+        "code": "HTTP Error: {{status}} - {{message}}",
+        "200": "Request was successful",
+        "201": "Requested operation was successful",
+        "400": "The request data is not valid",
+        "401": "You are not authorized to use application",
+        "403": "You are forbidden from accessing requested resource",
+        "404": "Requested resource not found",
+        "500": "A critical error occured on server, please contact system administrator"
+    },
+    "alertMessage": {
+        "success": "Operation was successful"
+    },
+    "buttons": {
+        "search": "Search",
+        "save": "Save",
+        "load": "Load",
+        "reset": "Reset",
+        "create": "Create",
+        "create_page": "Create Page",
+        "undo": "Undo",
+        "choose": "Choose",
+        "next": "Next",
+        "previous": "Previous",
+        "clear": "Clear",
+        "print": "Print",
+        "translate": "Translate",
+        "add": "Add",
+        "remove": "Remove"
+    },
+    "tables": {
+        "actions": "Actions"
+    },
+    "error": {
+        "1000": " error has occured"
+    }
+}

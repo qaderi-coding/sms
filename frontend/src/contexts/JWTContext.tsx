@@ -3,14 +3,13 @@ import { createContext, useEffect, useReducer, ReactNode } from 'react';
 
 // third-party
 import { jwtDecode } from 'jwt-decode';
-
+import axios from 'utils/axios';
 // reducer - state management
 import { login, logout, initialize } from 'store/slices/auth';
 import { dispatch } from 'store';
 
 // project imports
 import Loader from 'components/Loader';
-import axios from 'utils/axios';
 
 // types
 import { JWTContextType, User } from 'types/auth';
@@ -91,12 +90,12 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
           try {
             const response = await axios.get('/api/auth/user/');
             const user = response.data;
-            
+
             dispatchLocal({
               type: 'INITIALIZE',
               payload: { isLoggedIn: true, user }
             });
-            
+
             dispatch(initialize({ isLoggedIn: true, user, token: serviceToken }));
           } catch (error) {
             // Token might be expired, clear it
@@ -105,7 +104,7 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
               type: 'INITIALIZE',
               payload: { isLoggedIn: false, user: null }
             });
-            
+
             dispatch(initialize({ isLoggedIn: false, user: null, token: null }));
           }
         } else {
@@ -113,7 +112,7 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
             type: 'INITIALIZE',
             payload: { isLoggedIn: false, user: null }
           });
-          
+
           dispatch(initialize({ isLoggedIn: false, user: null, token: null }));
         }
       } catch (err) {
@@ -122,7 +121,7 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
           type: 'INITIALIZE',
           payload: { isLoggedIn: false, user: null }
         });
-        
+
         dispatch(initialize({ isLoggedIn: false, user: null, token: null }));
       }
     };
@@ -133,14 +132,14 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
   const loginHandler = async (username: string, password: string): Promise<void> => {
     const response = await axios.post('/api/auth/login/', { username, password });
     const { access, user } = response.data;
-    
+
     setSession(access);
-    
+
     dispatchLocal({
       type: 'LOGIN',
       payload: { isLoggedIn: true, user }
     });
-    
+
     dispatch(login({ user, token: access }));
   };
 
@@ -154,11 +153,7 @@ export const JWTProvider = ({ children }: JWTProviderProps) => {
     return <Loader />;
   }
 
-  return (
-    <JWTContext.Provider value={{ ...state, login: loginHandler, logout: logoutHandler }}>
-      {children}
-    </JWTContext.Provider>
-  );
+  return <JWTContext.Provider value={{ ...state, login: loginHandler, logout: logoutHandler }}>{children}</JWTContext.Provider>;
 };
 
 JWTProvider.propTypes = { children: PropTypes.node };

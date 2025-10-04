@@ -1,0 +1,107 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[AnyCPU]
+[Bb]uild/
+[Bb]uilds/
+
+# Visual Studio 
+## Core Files
+*.user
+*.userosscache
+*.suo
+*.cache
+*.VC.db
+*.VC.VC.opendb
+*.VC.VC.opendb-shm
+*.VC.VC.opendb-wal
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Bb]uild/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio Code
+.vscode/
+
+# NuGet
+[Nn]uget/
+[Nn]ugetPackages/
+packages/
+*.nupkg
+!*.nuspec
+[Nn]uget.exe
+[Nn]uget.config
+[Nn]uget.targets
+[Nn]uspec/
+[Nn]uget/
+[Nn]ugetPackages/
+
+# Dotnet pack output
+*.nupkg
+*.snupkg
+*.symbols.nupkg
+artifacts/
+
+# IDE - VSCode
+.vscode/
+
+# IDE - VS
+*.user
+*.userosscache
+*.suo
+*.csproj.user
+*.vbproj.user
+*.fsproj.user
+*.userprefs
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Testing
+*.trx
+[Tests]/
+[TestResults]/
+
+# Environment specific settings
+appsettings.Development.json
+appsettings.Production.json
+local.settings.json
+
+# IDE
+.vs/
+*.VC.VC.opendb
+*.VC.VC.opendb-shm
+*.VC.VC.opendb-wal
+
+# Temporary files
+*.tmp
+*.temp
+*~
