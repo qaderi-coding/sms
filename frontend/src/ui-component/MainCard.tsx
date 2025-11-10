@@ -1,22 +1,17 @@
 import React, { Ref } from 'react';
-
-// material-ui
 import { useTheme } from '@mui/material/styles';
-import { Card, CardContent, CardHeader, Divider, Typography, CardProps, CardHeaderProps, CardContentProps, Button } from '@mui/material';
-
-// project imports
+import { Card, CardContent, CardHeader, Divider, Typography, CardProps, CardHeaderProps, CardContentProps } from '@mui/material';
 
 // constant
 const headerSX = {
   '& .MuiCardHeader-action': { mr: 0 },
-  padding: '5px'
+  padding: '16px' // increased padding for header
 };
 
 // ==============================|| CUSTOM MAIN CARD ||============================== //
 
 export interface MainCardProps {
   border?: boolean;
-  boxShadow?: boolean;
   children?: React.ReactNode | string;
   style?: React.CSSProperties;
   content?: boolean;
@@ -26,8 +21,6 @@ export interface MainCardProps {
   darkTitle?: boolean;
   sx?: CardProps['sx'];
   secondary?: CardHeaderProps['action'];
-  shadow?: string | number;
-  elevation?: number;
   title?: React.ReactNode | string;
 }
 
@@ -35,15 +28,12 @@ const MainCard = React.forwardRef(
   (
     {
       border = false,
-      boxShadow,
       children,
       content = true,
       contentClass = '',
       contentSX = {},
       darkTitle,
       secondary,
-
-      shadow,
       sx = {},
       title,
       ...others
@@ -59,19 +49,14 @@ const MainCard = React.forwardRef(
         sx={{
           border: border ? '1px solid' : 'none',
           borderColor: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.grey[300] + 98,
-          ':hover': {
-            boxShadow: boxShadow
-              ? shadow || (theme.palette.mode === 'dark' ? '0 2px 14px 0 rgb(33 150 243 / 10%)' : '0 2px 14px 0 rgb(32 40 45 / 8%)')
-              : 'inherit'
-          },
           ...sx
         }}
       >
-        {/* card header and action */}
-        {!darkTitle && title && <CardHeader sx={headerSX} title={title} action={secondary} header={<Button content="Send">Send</Button>} />}
+        {/* card header */}
+        {!darkTitle && title && <CardHeader sx={headerSX} title={title} action={secondary} />}
         {darkTitle && title && <CardHeader sx={headerSX} title={<Typography variant="h3">{title}</Typography>} action={secondary} />}
 
-        {/* content & header divider */}
+        {/* header divider */}
         {title && <Divider />}
 
         {/* card content */}

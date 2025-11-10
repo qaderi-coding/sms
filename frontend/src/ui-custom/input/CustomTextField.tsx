@@ -1,82 +1,73 @@
-﻿import { FormControl, FormHelperText, InputLabel, OutlinedInput } from '@mui/material';
-import TextFieldProps from '../props/TextFieldProps';
+﻿import { FormControl, FormHelperText, InputLabel, OutlinedInput, Stack, InputAdornment } from '@mui/material';
 import { useMemo } from 'react';
-// import { useTranslation } from 'react-i18next';
-import { getDefaultWhenNullOrUndefined, getErrorStatus, getTranslateWhenNotNullOrUndefined } from 'utils/functions/inputHelpers';
+import { getDefaultWhenNullOrUndefined, getErrorStatus } from 'utils/functions/inputHelpers';
 import { IBaseInputProps } from '../props/BaseInputProps';
 
-function CustomTextField({
+interface ICustomTextFieldProps extends IBaseInputProps {
+  formik?: any; // Optional Formik instance
+  required?: boolean;
+}
+
+const CustomTextField = ({
   label,
   name,
   value,
-  type,
+  type = 'text',
   readonly,
   error,
   onClick,
-  translate,
   onChange,
-  onDoubleClickAction,
-  onEnterClickAction,
   onBlur,
   startAdornment,
   endAdornment,
-  sx
-}: IBaseInputProps) {
-  //   const [trans, i18n] = useTranslation();
-  //   const defaultLabel = useMemo(() => getTranslateWhenNotNullOrUndefined(trans, label, translate), [i18n.resolvedLanguage]);
-  const defaultValue = useMemo(() => getDefaultWhenNullOrUndefined(value), [value]);
-  const hasError = useMemo(() => getErrorStatus(error), [error]);
+  sx,
+  formik,
+  required = false,
+  placeholder
+}: ICustomTextFieldProps) => {
+  // Determine value and error from Formik if provided
+  const fieldValue = formik ? formik.values[name] : value;
+  const fieldError = formik ? (formik.touched[name] && formik.errors[name] ? formik.errors[name] : undefined) : error;
+
+  const defaultValue = useMemo(() => getDefaultWhenNullOrUndefined(fieldValue), [fieldValue]);
+  const hasError = useMemo(() => getErrorStatus(fieldError), [fieldError]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    switch (e.key) {
-      case 'Enter':
-        onEnterClickAction?.(e);
-        break;
-        // case 'Escape':
-        //     onEscapeKeyAction?.();
-        //     break;
-        // case 'ArrowDown':
-        //     onArrowDownKeyAction?.();
-        //     break;
-        // case 'ArrowUp':
-        //     onArrowUpKeyAction?.();
-        //     break;
-        // default:
-        break;
-    }
+    if (e.key === 'Enter' && onClick) onClick(e as any);
   };
+
   return (
-    <FormControl variant="outlined" sx={sx}>
-      <InputLabel htmlFor={name}>{label}</InputLabel>
+    <FormControl fullWidth variant="outlined" sx={sx}>
+      {/* <Stack spacing={0.5}> */}
+      <InputLabel htmlFor={name} required={required} sx={{ color: 'grey.700', fontWeight: 500 }}>
+        {label}
+      </InputLabel>
       <OutlinedInput
+        id={name}
         name={name}
         type={type}
         label={label}
         value={defaultValue}
-        disabled={readonly === true}
-        onChange={onChange}
-        onBlur={onBlur}
+        placeholder={placeholder}
+        disabled={readonly}
+        onChange={formik ? formik.handleChange : onChange}
+        onBlur={formik ? formik.handleBlur : onBlur}
         onClick={onClick}
-        onDoubleClick={onDoubleClickAction}
         onKeyDown={handleKeyDown}
-        startAdornment={startAdornment}
-        endAdornment={endAdornment}
+        startAdornment={startAdornment ? <InputAdornment position="start">{startAdornment}</InputAdornment> : undefined}
+        endAdornment={endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : undefined}
         error={hasError}
-        sx={{ sx }}
-        autoComplete="off" // 👈 disables the annoying auto typing list
+        sx={{ ...sx }}
+        autoComplete="off"
         inputProps={{
           autoComplete: 'off',
-          autocomplete: 'off', // For some browsers
-          form: { autocomplete: 'off' } // Additional prevention
+          form: { autoComplete: 'off' }
         }}
       />
-      {hasError && (
-        <FormHelperText id={name} error={true}>
-          {error}
-        </FormHelperText>
-      )}
+      {hasError && <FormHelperText error>{fieldError}</FormHelperText>}
+      {/* </Stack> */}
     </FormControl>
   );
-}
+};
 
 export default CustomTextField;

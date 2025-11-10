@@ -1,40 +1,41 @@
-﻿import { Divider, Grid, SxProps } from '@mui/material';
+﻿import { Grid, SxProps } from '@mui/material';
 import { Theme } from '@mui/material/styles';
-import React, { memo, useMemo } from 'react';
-import FormikTextField from './formik/FormikTextField';
-// import useConfig from '../hooks/useConfig';
+import React, { memo } from 'react';
 
-export interface GridProps {
-  columns?: number;
-  xs?: number;
-  lg?: number;
-  xl?: number;
-  borderLeft?: boolean;
+export interface WrapInGridProps {
+  columns?: number; // number of columns to split children
+  xs?: number; // responsive width for xs
+  sm?: number; // responsive width for sm
+  md?: number; // responsive width for md
+  lg?: number; // responsive width for lg
+  xl?: number; // responsive width for xl
+  spacing?: number; // spacing between grid items
   sx?: SxProps<Theme>;
-  children?: any;
+  children: React.ReactNode;
 }
 
-function WrapInGrid({ columns, xs, lg, xl, borderLeft, sx, children }: GridProps) {
-  // let config = useConfig();
-  // console.log('input grid screen render');
+const WrapInGrid = ({ columns = 1, xs, sm, md, lg, xl, spacing = 2, sx, children }: WrapInGridProps) => {
+  // Calculate default Grid size based on columns
+  const gridSize = Math.floor(12 / columns);
+
   return (
-    <Grid
-      container
-      // item={true}
-      sx={{
-        padding: '0px',
-        marginBottom: '0px',
-        alignContent: 'start',
-        borderLeft: borderLeft === true ? '1px solid #e0e0e0' : '',
-        // backgroundColor: config.navType == 'light' ? 'white' : 'rgb(33, 41, 70)',
-        ...sx
-      }}
-    >
-      {React.Children.map(children, (child, index) => {
-        return child.type === Divider || child.type === Grid || child.type === WrapInGrid ? child : <Grid key={index}>{child}</Grid>;
-      })}
+    <Grid container spacing={spacing} sx={sx}>
+      {React.Children.map(children, (child, index) => (
+        <Grid
+          key={index}
+          size={{
+            xs: xs ?? gridSize,
+            sm: sm ?? gridSize,
+            md: md ?? gridSize,
+            lg: lg ?? gridSize,
+            xl: xl ?? gridSize
+          }}
+        >
+          {child}
+        </Grid>
+      ))}
     </Grid>
   );
-}
+};
 
 export default memo(WrapInGrid);
