@@ -99,6 +99,12 @@ const shopManagement = {
           type: 'item',
           url: '/inventory/categories'
         },
+           {
+          id: 'add-category',
+          title: 'Add Category',
+          type: 'item',
+          url: '/inventory/categories/add'
+        },
         {
           id: 'companies',
           title: 'Companies',

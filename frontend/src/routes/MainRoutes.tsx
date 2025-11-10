@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import AuthGuard from 'utils/route-guard/AuthGuard';
+import { CategoryForm, CategoryPage } from '@/apps/administration/category';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -22,7 +23,6 @@ const SalesList = Loadable(lazy(() => import('apps/sales/pages/SalesList')));
 const CreateSale = Loadable(lazy(() => import('apps/sales/pages/CreateSale')));
 const InvoicePrint = Loadable(lazy(() => import('apps/sales/print/InvoicePrint')));
 const CustomerManagement = Loadable(lazy(() => import('apps/parties/customer/views/CustomerManagement')));
-
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -74,6 +74,15 @@ const MainRoutes = {
       ]
     },
     {
+      path: 'category',
+      children: [
+        // { path: 'create', element: <CreateSale /> },
+        { path: 'list', element: <CategoryPage /> },
+        { path: 'add', element: <CategoryForm /> },
+        { path: 'edit/:id', element: <CategoryForm /> }
+      ]
+    },
+    {
       path: 'purchases',
       children: [
         { path: 'create', element: <ShopPage /> },
@@ -117,7 +126,7 @@ const MainRoutes = {
           ]
         },
         {
-          path: 'purchases', 
+          path: 'purchases',
           children: [
             { path: 'daily', element: <ShopPage /> },
             { path: 'supplier-wise', element: <ShopPage /> }
