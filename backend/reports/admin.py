@@ -1,1 +1,0 @@
-# Reports app doesn't have models - it's for generating reports only

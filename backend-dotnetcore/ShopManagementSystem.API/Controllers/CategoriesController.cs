@@ -45,7 +45,7 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     [SwaggerOperation(Summary = "Create category")]
     [SwaggerResponse(201, "Category created successfully", typeof(CategoryResponse))]
-    [Authorize(Policy = "ManagerOrAdmin")]
+    // [Authorize(Policy = "ManagerOrAdmin")]
     public async Task<ActionResult<CategoryResponse>> CreateCategory([FromBody] CreateCategoryRequest request)
     {
         var command = new CreateCategoryCommand { Request = request };
@@ -57,7 +57,7 @@ public class CategoriesController : ControllerBase
     [SwaggerOperation(Summary = "Update category")]
     [SwaggerResponse(200, "Category updated successfully", typeof(CategoryResponse))]
     [SwaggerResponse(404, "Category not found")]
-    [Authorize(Policy = "ManagerOrAdmin")]
+    // [Authorize(Policy = "ManagerOrAdmin")]
     public async Task<ActionResult<CategoryResponse>> UpdateCategory(int id, [FromBody] UpdateCategoryRequest request)
     {
         try
