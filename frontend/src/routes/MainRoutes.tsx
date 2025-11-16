@@ -5,6 +5,18 @@ import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import AuthGuard from 'utils/route-guard/AuthGuard';
 import { CategoryForm, CategoryPage } from '@/apps/administration/category';
+import { 
+  CompanyPage, 
+  CompanyForm,
+  UnitPage,
+  UnitForm,
+  BikeModelPage,
+  BikeModelForm,
+  ProductPage,
+  ProductForm,
+  ProductUnitConversionPage,
+  ProductUnitConversionForm
+} from '@/apps/inventory';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -93,10 +105,46 @@ const MainRoutes = {
     {
       path: 'inventory',
       children: [
-        { path: 'products', element: <ShopPage /> },
-        { path: 'categories', element: <ShopPage /> },
-        { path: 'companies', element: <ShopPage /> },
-        { path: 'bike-models', element: <ShopPage /> }
+        {
+          path: 'companies',
+          children: [
+            { index: true, element: <CompanyPage /> },
+            { path: 'create', element: <CompanyForm /> },
+            { path: 'edit/:id', element: <CompanyForm /> }
+          ]
+        },
+        {
+          path: 'units',
+          children: [
+            { index: true, element: <UnitPage /> },
+            { path: 'create', element: <UnitForm /> },
+            { path: 'edit/:id', element: <UnitForm /> }
+          ]
+        },
+        {
+          path: 'bike-models',
+          children: [
+            { index: true, element: <BikeModelPage /> },
+            { path: 'create', element: <BikeModelForm /> },
+            { path: 'edit/:id', element: <BikeModelForm /> }
+          ]
+        },
+        {
+          path: 'products',
+          children: [
+            { index: true, element: <ProductPage /> },
+            { path: 'create', element: <ProductForm /> },
+            { path: 'edit/:id', element: <ProductForm /> }
+          ]
+        },
+        {
+          path: 'product-unit-conversions',
+          children: [
+            { index: true, element: <ProductUnitConversionPage /> },
+            { path: 'create', element: <ProductUnitConversionForm /> },
+            { path: 'edit/:id', element: <ProductUnitConversionForm /> }
+          ]
+        }
       ]
     },
     {
