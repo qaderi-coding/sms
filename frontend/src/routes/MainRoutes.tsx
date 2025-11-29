@@ -17,6 +17,11 @@ import {
   ProductUnitConversionPage,
   ProductUnitConversionForm
 } from '@/apps/inventory';
+import {
+  SalePage,
+  SaleForm,
+  SaleReturnForm
+} from '@/apps/sales';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -78,11 +83,11 @@ const MainRoutes = {
     {
       path: 'sales',
       children: [
-        { path: 'create', element: <CreateSale /> },
-        { path: 'list', element: <SalesList /> },
-        { path: 'edit/:id', element: <CreateSale /> },
-        { path: 'print/:id', element: <InvoicePrint /> },
-        { path: 'returns', element: <ShopPage /> }
+        { index: true, element: <SalePage /> },
+        { path: 'create', element: <SaleForm /> },
+        { path: 'edit/:id', element: <SaleForm /> },
+        { path: 'return/:id', element: <SaleReturnForm /> },
+        { path: 'print/:id', element: <InvoicePrint /> }
       ]
     },
     {
