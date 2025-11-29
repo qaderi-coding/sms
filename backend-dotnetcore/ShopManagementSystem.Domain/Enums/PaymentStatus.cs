@@ -1,6 +1,6 @@
 namespace ShopManagementSystem.Domain.Enums;
 
-public enum PaymentStatus
+public enum PaymentStatusEnum
 {
     Pending,
     Partial,

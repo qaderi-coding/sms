@@ -1,0 +1,160 @@
+Building...
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/Program.cs(187,36): warning EF1002: Method 'ExecuteSqlRawAsync' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using 'ExecuteSqlAsync' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning. [/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/ShopManagementSystem.API.csproj]
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/Program.cs(216,36): warning EF1002: Method 'ExecuteSqlRawAsync' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using 'ExecuteSqlAsync' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning. [/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/ShopManagementSystem.API.csproj]
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/Program.cs(243,36): warning EF1002: Method 'ExecuteSqlRawAsync' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using 'ExecuteSqlAsync' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning. [/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/ShopManagementSystem.API.csproj]
+/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/Program.cs(269,36): warning EF1002: Method 'ExecuteSqlRawAsync' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using 'ExecuteSqlAsync' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning. [/mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/ShopManagementSystem.API.csproj]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DROP TABLE IF EXISTS CurrencyExchangeRates
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  CREATE TABLE CurrencyExchangeRates (
+                      Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      CurrencyId INTEGER NOT NULL,
+                      RateToAfghani TEXT NOT NULL,
+                      Date TEXT NOT NULL,
+                      EffectiveDate TEXT,
+                      Source TEXT,
+                      IsActive INTEGER DEFAULT 1,
+                      CreatedAt TEXT DEFAULT (datetime('now')),
+                      UpdatedAt TEXT DEFAULT (datetime('now'))
+                  )
+Recreated CurrencyExchangeRates table with correct schema
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT INTO CurrencyExchangeRates (CurrencyId, RateToAfghani, Date, EffectiveDate, Source, IsActive) VALUES
+                  (1, '1.0', '2024-01-01', '2024-01-01', 'System', 1),
+                  (2, '0.014', '2024-01-01', '2024-01-01', 'System', 1),
+                  (3, '0.012', '2024-01-01', '2024-01-01', 'System', 1)
+Seeded exchange rate data
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT OR IGNORE INTO Currencies (Id, Code, Name, Symbol, IsBaseCurrency, IsActive, CurrentExchangeRate, LastUpdated, CreatedAt, UpdatedAt) VALUES
+                  (1, 'AFN', 'Afghan Afghani', '؋', 1, 1, '1.0', '2024-01-01', datetime('now'), datetime('now')),
+                  (2, 'USD', 'US Dollar', '$', 0, 1, '0.014', '2024-01-01', datetime('now'), datetime('now')),
+                  (3, 'EUR', 'Euro', '€', 0, 1, '0.012', '2024-01-01', datetime('now'), datetime('now'))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT OR IGNORE INTO PaymentStatuses (Id, Name, CreatedAt, UpdatedAt) VALUES
+                  (1, 'Pending', datetime('now'), datetime('now')),
+                  (2, 'Paid', datetime('now'), datetime('now')),
+                  (3, 'Cancelled', datetime('now'), datetime('now'))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT OR IGNORE INTO Customers (Id, Name, Email, Phone, Address, CreatedAt, UpdatedAt) VALUES
+                  (1, 'Test Customer', 'test@example.com', '123456789', 'Test Address', datetime('now'), datetime('now'))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT OR IGNORE INTO Products (Id, Name, Description, Price, StockQuantity, CreatedAt, UpdatedAt) VALUES
+                  (1, 'Test Product', 'Test Product Description', '400', 100, datetime('now'), datetime('now'))
+Seeded basic data (Currencies, PaymentStatuses, Customers, Products)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      PRAGMA foreign_keys = OFF
+Disabled foreign key constraints for development
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT AmountInBaseCurrency FROM Transactions LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT ExchangeRateUsed FROM Transactions LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OriginalAmount FROM Transactions LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT ExchangeRateToUsd FROM Transactions LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT AmountUsd FROM Transactions LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrentExchangeRate FROM Currencies LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT LastUpdated FROM Currencies LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT IsBaseCurrency FROM Currencies LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT IsActive FROM Currencies LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrencyId FROM Sales LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT PaymentStatusId FROM Sales LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrencyId FROM SaleItems LIMIT 1
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5523
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."Code", "c"."CreatedAt", "c"."CurrentExchangeRate", "c"."IsActive", "c"."IsBaseCurrency", "c"."LastUpdated", "c"."Name", "c"."Symbol", "c"."UpdatedAt"
+      FROM "Currencies" AS "c"
+      WHERE "c"."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."CurrencyId", "c"."Date", "c"."EffectiveDate", "c"."IsActive", "c"."RateToAfghani", "c"."Source", "c"."UpdatedAt"
+      FROM "CurrencyExchangeRates" AS "c"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."CurrencyId", "c"."Date", "c"."EffectiveDate", "c"."IsActive", "c"."RateToAfghani", "c"."Source", "c"."UpdatedAt"
+      FROM "CurrencyExchangeRates" AS "c"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."Code", "c"."CreatedAt", "c"."CurrentExchangeRate", "c"."IsActive", "c"."IsBaseCurrency", "c"."LastUpdated", "c"."Name", "c"."Symbol", "c"."UpdatedAt"
+      FROM "Currencies" AS "c"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."CurrencyId", "c"."Date", "c"."EffectiveDate", "c"."IsActive", "c"."RateToAfghani", "c"."Source", "c"."UpdatedAt"
+      FROM "CurrencyExchangeRates" AS "c"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p9='?' (DbType = Int32), @p0='?' (Size = 3), @p1='?' (DbType = DateTime), @p2='?' (DbType = Decimal), @p3='?' (DbType = Boolean), @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?' (Size = 9), @p7='?' (Size = 1), @p8='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Currencies" SET "Code" = @p0, "CreatedAt" = @p1, "CurrentExchangeRate" = @p2, "IsActive" = @p3, "IsBaseCurrency" = @p4, "LastUpdated" = @p5, "Name" = @p6, "Symbol" = @p7, "UpdatedAt" = @p8
+      WHERE "Id" = @p9
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Decimal), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?' (DbType = Decimal), @p5='?' (DbType = Decimal), @p6='?' (Size = 31), @p7='?' (DbType = Decimal), @p8='?' (DbType = Int32), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Transactions" ("AmountInBaseCurrency", "AmountUsd", "CreatedAt", "CurrencyId", "ExchangeRateToUsd", "ExchangeRateUsed", "Notes", "OriginalAmount", "PartyId", "PartyType", "Type", "UpdatedAt")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = Decimal), @p4='?' (DbType = Decimal), @p5='?', @p6='?' (DbType = Int32), @p7='?' (DbType = DateTime), @p8='?' (DbType = Decimal), @p9='?' (DbType = Int32), @p10='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Sales" ("CreatedAt", "CurrencyId", "CustomerId", "Discount", "FinalAmount", "Notes", "PaymentStatusId", "SaleDate", "TotalAmount", "TransactionId", "UpdatedAt")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p11='?' (DbType = DateTime), @p12='?' (DbType = Int32), @p13='?' (DbType = Int32), @p14='?' (DbType = Int32), @p15='?' (DbType = Int32), @p16='?' (DbType = Decimal), @p17='?' (DbType = Decimal), @p18='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "SaleItems" ("CreatedAt", "CurrencyId", "ProductId", "Quantity", "SaleId", "TotalPrice", "UnitPrice", "UpdatedAt")
+      VALUES (@p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."Address", "c"."CreatedAt", "c"."Email", "c"."Name", "c"."Phone", "c"."UpdatedAt"
+      FROM "Customers" AS "c"
+      WHERE "c"."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."Id", "p"."Code", "p"."CreatedAt", "p"."Description", "p"."IsActive", "p"."Name", "p"."SortOrder", "p"."UpdatedAt"
+      FROM "PaymentStatuses" AS "p"
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

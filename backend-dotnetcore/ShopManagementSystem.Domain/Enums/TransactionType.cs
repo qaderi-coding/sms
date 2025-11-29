@@ -53,3 +53,19 @@ public enum StockMovementType
     ReturnSale,
     ReturnPurchase
 }
+
+public enum ModuleType
+{
+    Sale = 1,
+    SaleReturn = 2,
+    Purchase = 3,
+    PurchaseReturn = 4,
+    Expense = 5,
+    LoanIn = 6,
+    LoanOut = 7,
+    CapitalIn = 8,
+    CapitalOut = 9,
+    CustomerPayment = 10,
+    SupplierPayment = 11,
+    Other = 12
+}

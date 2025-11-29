@@ -1,150 +1,80 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ShopManagementSystem.Domain.Entities;
-using ShopManagementSystem.Domain.Interfaces;
+using ShopManagementSystem.Application.Commands;
+using ShopManagementSystem.Application.DTOs;
+using ShopManagementSystem.Application.Queries;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ShopManagementSystem.API.Controllers;
 
 [ApiController]
 [Route("api/purchases")]
-[SwaggerTag("Purchase management endpoints")]
+[SwaggerTag("Purchases and returns management endpoints")]
 public class PurchasesController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public PurchasesController(IUnitOfWork unitOfWork)
+    public PurchasesController(IMediator mediator)
     {
-        _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     [HttpGet]
     [SwaggerOperation(
-        Summary = "Get all purchases",
-        Description = "Retrieves a list of all purchases"
+        Summary = "Get purchases or returns",
+        Description = "Retrieves purchases or returns based on query parameter"
     )]
-    [SwaggerResponse(200, "Purchases retrieved successfully", typeof(IEnumerable<Purchase>))]
-    public async Task<ActionResult<IEnumerable<Purchase>>> GetPurchases()
+    [SwaggerResponse(200, "Purchases retrieved successfully", typeof(IEnumerable<PurchaseDto>))]
+    public async Task<ActionResult<IEnumerable<PurchaseDto>>> GetPurchases([FromQuery] bool? isReturn = null)
     {
-        var purchases = await _unitOfWork.Purchases.GetAllAsync();
+        var purchases = await _mediator.Send(new GetPurchasesQuery { IsReturn = isReturn });
         return Ok(purchases);
     }
 
     [HttpGet("{id}")]
-    [SwaggerOperation(Summary = "Get purchase by ID")]
-    public async Task<ActionResult<Purchase>> GetPurchase(int id)
+    [SwaggerOperation(
+        Summary = "Get purchase by ID",
+        Description = "Retrieves a specific purchase by its ID"
+    )]
+    [SwaggerResponse(200, "Purchase found", typeof(PurchaseDto))]
+    [SwaggerResponse(404, "Purchase not found")]
+    public async Task<ActionResult<PurchaseDto>> GetPurchase(
+        [SwaggerParameter("The ID of the purchase to retrieve")] int id)
     {
-        var purchase = await _unitOfWork.Purchases.GetByIdAsync(id);
-        if (purchase == null) return NotFound();
+        var purchase = await _mediator.Send(new GetPurchaseByIdQuery { Id = id });
+        if (purchase == null)
+            return NotFound();
+        
         return Ok(purchase);
     }
 
     [HttpPost("bulk-create")]
     [SwaggerOperation(
         Summary = "Create bulk purchase",
-        Description = "Creates a new purchase with multiple items"
+        Description = "Creates a new purchase with multiple items and proper cashbook transactions"
     )]
-    [SwaggerResponse(201, "Purchase created successfully", typeof(Purchase))]
-    public async Task<ActionResult<Purchase>> CreateBulkPurchase(
-        [FromBody, SwaggerParameter("Purchase data")] Purchase purchase)
+    [SwaggerResponse(201, "Purchase created successfully", typeof(PurchaseDto))]
+    [SwaggerResponse(400, "Invalid purchase data")]
+    public async Task<ActionResult<PurchaseDto>> CreateBulkPurchase(
+        [FromBody, SwaggerParameter("Purchase data including supplier and items")] CreatePurchaseDto createPurchaseDto)
     {
-        await _unitOfWork.BeginTransactionAsync();
-        
-        try
-        {
-            // Create transaction first
-            var transaction = new Transaction
-            {
-                Type = Domain.Enums.TransactionType.Purchase,
-                PartyType = Domain.Enums.PartyType.Supplier,
-                PartyId = purchase.SupplierId,
-                OriginalAmount = purchase.TotalAmount,
-                Currency = purchase.Currency,
-                ExchangeRateToUsd = 1.0m,
-                AmountUsd = purchase.TotalAmount,
-                Notes = "Purchase"
-            };
-
-            var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
-            await _unitOfWork.SaveChangesAsync();
-
-            purchase.TransactionId = createdTransaction.Id;
-            var createdPurchase = await _unitOfWork.Purchases.AddAsync(purchase);
-            await _unitOfWork.SaveChangesAsync();
-            
-            await _unitOfWork.CommitTransactionAsync();
-            return CreatedAtAction(nameof(GetPurchase), new { id = createdPurchase.Id }, createdPurchase);
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
-    }
-
-    [HttpPut("bulk-update/{id}")]
-    [SwaggerOperation(Summary = "Update bulk purchase")]
-    public async Task<ActionResult<Purchase>> UpdateBulkPurchase(int id, [FromBody] Purchase purchase)
-    {
-        var existingPurchase = await _unitOfWork.Purchases.GetByIdAsync(id);
-        if (existingPurchase == null) return NotFound();
-
-        existingPurchase.SupplierId = purchase.SupplierId;
-        existingPurchase.TotalAmount = purchase.TotalAmount;
-        existingPurchase.Currency = purchase.Currency;
-        existingPurchase.Status = purchase.Status;
-        existingPurchase.UpdatedAt = DateTime.UtcNow;
-
-        await _unitOfWork.Purchases.UpdateAsync(existingPurchase);
-        await _unitOfWork.SaveChangesAsync();
-        return Ok(existingPurchase);
+        var command = new CreatePurchaseCommand { Purchase = createPurchaseDto };
+        var result = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetPurchase), new { id = result.Id }, result);
     }
 
     [HttpPost("returns/bulk-create")]
-    [SwaggerOperation(Summary = "Create bulk purchase return")]
-    public async Task<ActionResult<Purchase>> CreateBulkPurchaseReturn([FromBody] Purchase purchase)
+    [SwaggerOperation(
+        Summary = "Create bulk purchase return",
+        Description = "Creates a new purchase return using the same Purchase entity with IsReturn=true"
+    )]
+    [SwaggerResponse(201, "Purchase return created successfully", typeof(PurchaseDto))]
+    [SwaggerResponse(400, "Invalid purchase return data")]
+    public async Task<ActionResult<PurchaseDto>> CreateBulkPurchaseReturn(
+        [FromBody, SwaggerParameter("Purchase return data")] CreatePurchaseDto createPurchaseDto)
     {
-        await _unitOfWork.BeginTransactionAsync();
-        
-        try
-        {
-            var transaction = new Transaction
-            {
-                Type = Domain.Enums.TransactionType.ReturnPurchase,
-                PartyType = Domain.Enums.PartyType.Supplier,
-                PartyId = purchase.SupplierId,
-                OriginalAmount = -purchase.TotalAmount, // Negative for return
-                Currency = purchase.Currency,
-                ExchangeRateToUsd = 1.0m,
-                AmountUsd = -purchase.TotalAmount,
-                Notes = "Purchase Return"
-            };
-
-            var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
-            await _unitOfWork.SaveChangesAsync();
-
-            purchase.TransactionId = createdTransaction.Id;
-            var createdPurchase = await _unitOfWork.Purchases.AddAsync(purchase);
-            await _unitOfWork.SaveChangesAsync();
-            
-            await _unitOfWork.CommitTransactionAsync();
-            return CreatedAtAction(nameof(GetPurchase), new { id = createdPurchase.Id }, createdPurchase);
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
-    }
-
-    [HttpDelete("{id}")]
-    [SwaggerOperation(Summary = "Delete purchase")]
-    public async Task<ActionResult> DeletePurchase(int id)
-    {
-        var purchase = await _unitOfWork.Purchases.GetByIdAsync(id);
-        if (purchase == null) return NotFound();
-
-        await _unitOfWork.Purchases.DeleteAsync(purchase);
-        await _unitOfWork.SaveChangesAsync();
-        return NoContent();
+        var command = new CreatePurchaseCommand { Purchase = createPurchaseDto, IsReturn = true };
+        var result = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetPurchase), new { id = result.Id }, result);
     }
 }

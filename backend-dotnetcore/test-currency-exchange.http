@@ -1,0 +1,138 @@
+### Test Currency Exchange API
+
+### 1. Get all currencies
+GET http://localhost:5000/api/core/currencies
+Content-Type: application/json
+
+### 2. Get base currency
+GET http://localhost:5000/api/core/currency-exchange/base-currency
+Content-Type: application/json
+
+### 3. Get USD to AFN exchange rate
+GET http://localhost:5000/api/core/currency-exchange/rate/2
+Content-Type: application/json
+
+### 4. Get Iranian Rial to AFN exchange rate
+GET http://localhost:5000/api/core/currency-exchange/rate/3
+Content-Type: application/json
+
+### 5. Convert 100 USD to AFN
+GET http://localhost:5000/api/core/currency-exchange/convert-to-afghani?amount=100&fromCurrencyId=2
+Content-Type: application/json
+
+### 6. Convert 1000 AFN to USD
+GET http://localhost:5000/api/core/currency-exchange/convert-from-afghani?amount=1000&toCurrencyId=2
+Content-Type: application/json
+
+### 7. Convert 590000 Iranian Rial to AFN
+GET http://localhost:5000/api/core/currency-exchange/convert-to-afghani?amount=590000&fromCurrencyId=3
+Content-Type: application/json
+
+### 8. Convert 1000 AFN to Chinese Yuan
+GET http://localhost:5000/api/core/currency-exchange/convert-from-afghani?amount=1000&toCurrencyId=4
+Content-Type: application/json
+
+### 9. Convert 1000 AFN to Pakistani Rupee
+GET http://localhost:5000/api/core/currency-exchange/convert-from-afghani?amount=1000&toCurrencyId=5
+Content-Type: application/json
+
+### 10. Set new USD to AFN exchange rate
+POST http://localhost:5000/api/core/currency-exchange/rate
+Content-Type: application/json
+
+{
+  "currencyId": 2,
+  "rateToAfghani": 72.0,
+  "date": "2024-01-15T00:00:00Z",
+  "source": "Manual Update"
+}
+
+### 11. Bulk update exchange rates (other currencies to AFN)
+POST http://localhost:5000/api/core/currency-exchange/bulk-update
+Content-Type: application/json
+
+{
+  "rates": {
+    "USD": 72.5,
+    "IRR": 0.0018,
+    "CNY": 10.2,
+    "PKR": 0.27
+  },
+  "date": "2024-01-15T00:00:00Z",
+  "source": "Daily Update"
+}
+
+### 12. Get USD exchange rate history
+GET http://localhost:5000/api/core/currency-exchange/history/2
+Content-Type: application/json
+
+### 13. Get all active exchange rates
+GET http://localhost:5000/api/core/currency-exchange/all-rates
+Content-Type: application/json
+
+### 14. Get current exchange rates for all currencies
+GET http://localhost:5000/api/core/currency-exchange/current-rates
+Content-Type: application/json
+
+### 15. Create a sale in USD (should convert to AFN base currency)
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "currencyId": 2,
+  "paymentStatus": 1,
+  "saleDate": "2024-01-15T10:00:00Z",
+  "discount": 0,
+  "notes": "Test sale in USD",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "unitPrice": 50.00,
+      "totalPrice": 100.00
+    }
+  ]
+}
+
+### 16. Create a sale in Iranian Rial
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "currencyId": 3,
+  "paymentStatus": 1,
+  "saleDate": "2024-01-15T10:00:00Z",
+  "discount": 0,
+  "notes": "Test sale in Iranian Rial",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 590000.00,
+      "totalPrice": 590000.00
+    }
+  ]
+}
+
+### 17. Create a sale in Afghani (base currency)
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "currencyId": 1,
+  "paymentStatus": 1,
+  "saleDate": "2024-01-15T10:00:00Z",
+  "discount": 50,
+  "notes": "Test sale in Afghani",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 3,
+      "unitPrice": 1000.00,
+      "totalPrice": 3000.00
+    }
+  ]
+}

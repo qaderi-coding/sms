@@ -1,0 +1,17 @@
+{
+    "customerId": 1,
+    "saleDate": "2025-01-20T00:00:00",
+    "totalAmount": 400,
+    "currencyId": 1,
+    "discount": 0,
+    "paymentStatus": 0,
+    "notes": "",
+    "items": [
+        {
+            "productId": 1,
+            "quantity": 1,
+            "unitPrice": 400,
+            "totalPrice": 400
+        }
+    ]
+}

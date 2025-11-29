@@ -9,7 +9,7 @@ namespace ShopManagementSystem.API.Controllers;
 
 [ApiController]
 [Route("api/sales")]
-[SwaggerTag("Sales management endpoints")]
+[SwaggerTag("Sales and returns management endpoints")]
 public class SalesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -19,17 +19,7 @@ public class SalesController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [SwaggerOperation(
-        Summary = "Get all sales",
-        Description = "Retrieves a list of all sales in the system"
-    )]
-    [SwaggerResponse(200, "Sales retrieved successfully", typeof(IEnumerable<SaleDto>))]
-    public async Task<ActionResult<IEnumerable<SaleDto>>> GetSales()
-    {
-        var sales = await _mediator.Send(new GetSalesQuery());
-        return Ok(sales);
-    }
+
 
     [HttpGet("{id}")]
     [SwaggerOperation(
@@ -83,16 +73,29 @@ public class SalesController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "Get sales or returns",
+        Description = "Retrieves sales or returns based on query parameter"
+    )]
+    [SwaggerResponse(200, "Sales retrieved successfully", typeof(IEnumerable<SaleDto>))]
+    public async Task<ActionResult<IEnumerable<SaleDto>>> GetSales([FromQuery] bool? isReturn = null)
+    {
+        var sales = await _mediator.Send(new GetSalesQuery { IsReturn = isReturn });
+        return Ok(sales);
+    }
+
     [HttpPost("returns/bulk-create")]
     [SwaggerOperation(
-        Summary = "Create bulk sale return",
-        Description = "Creates a sale return with multiple items"
+        Summary = "Create bulk sales return",
+        Description = "Creates a new sales return using the same Sale entity with IsReturn=true"
     )]
-    [SwaggerResponse(201, "Sale return created successfully", typeof(SaleDto))]
-    public async Task<ActionResult<SaleDto>> CreateBulkSaleReturn(
-        [FromBody, SwaggerParameter("Sale return data")] CreateSaleDto createSaleDto)
+    [SwaggerResponse(201, "Sales return created successfully", typeof(SaleDto))]
+    [SwaggerResponse(400, "Invalid sales return data")]
+    public async Task<ActionResult<SaleDto>> CreateBulkSalesReturn(
+        [FromBody, SwaggerParameter("Sales return data")] CreateSaleDto createSaleDto)
     {
-        var command = new CreateSaleCommand { Sale = createSaleDto };
+        var command = new CreateSaleCommand { Sale = createSaleDto, IsReturn = true };
         var result = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetSale), new { id = result.Id }, result);
     }

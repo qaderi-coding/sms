@@ -1,23 +1,19 @@
-using ShopManagementSystem.Domain.Enums;
+using ShopManagementSystem.Domain.Entities;
 
 namespace ShopManagementSystem.Application.DTOs;
 
-public class LoanDto
+public class LoanPartyDto
 {
     public int Id { get; set; }
-    public PartyType PartyType { get; set; }
-    public int PartyId { get; set; }
-    public string PartyName { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-    public string Currency { get; set; } = string.Empty;
-    public LoanStatus Status { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public LoanType Type { get; set; }
+    public decimal OpeningBalance { get; set; }
+    public decimal CurrentBalance { get; set; }
 }
 
-public class CreateLoanDto
+public class CreateLoanPartyDto
 {
-    public PartyType PartyType { get; set; }
-    public int PartyId { get; set; }
-    public decimal Amount { get; set; }
-    public string Currency { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public LoanType Type { get; set; }
+    public decimal OpeningBalance { get; set; }
 }

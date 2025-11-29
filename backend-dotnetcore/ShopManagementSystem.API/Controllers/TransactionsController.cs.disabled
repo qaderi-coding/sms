@@ -1,0 +1,234 @@
+using Microsoft.AspNetCore.Mvc;
+using ShopManagementSystem.Application.DTOs;
+using ShopManagementSystem.Application.Services;
+using ShopManagementSystem.Domain.Entities;
+using ShopManagementSystem.Domain.Interfaces;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace ShopManagementSystem.API.Controllers;
+
+[ApiController]
+[Route("api/transactions")]
+[SwaggerTag("Transaction management endpoints")]
+public class TransactionsController : ControllerBase
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrencyExchangeService _currencyExchangeService;
+
+    public TransactionsController(IUnitOfWork unitOfWork, ICurrencyExchangeService currencyExchangeService)
+    {
+        _unitOfWork = unitOfWork;
+        _currencyExchangeService = currencyExchangeService;
+    }
+
+    [HttpGet]
+    [SwaggerOperation(Summary = "Get all transactions", Description = "Retrieves transaction history")]
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions()
+    {
+        var transactions = await _unitOfWork.Transactions.GetAllAsync();
+        var currencies = await _unitOfWork.Currencies.GetAllAsync();
+        
+        var transactionDtos = transactions.Select(t => 
+        {
+            var currency = currencies.FirstOrDefault(c => c.Id == t.CurrencyId);
+            return new TransactionDto
+            {
+                Id = t.Id,
+                Type = t.Type,
+                PartyType = t.PartyType,
+                PartyId = t.PartyId,
+                CurrencyId = t.CurrencyId,
+                CurrencyCode = currency?.Code ?? "",
+                CurrencySymbol = currency?.Symbol ?? "",
+                OriginalAmount = t.OriginalAmount,
+                ExchangeRateUsed = t.ExchangeRateUsed,
+                AmountInBaseCurrency = t.AmountInBaseCurrency,
+                Notes = t.Notes,
+                CreatedAt = t.CreatedAt
+            };
+        });
+        
+        return Ok(transactionDtos);
+    }
+
+    [HttpGet("{id}")]
+    [SwaggerOperation(Summary = "Get transaction by ID")]
+    public async Task<ActionResult<TransactionDto>> GetTransaction(int id)
+    {
+        var transaction = await _unitOfWork.Transactions.GetByIdAsync(id);
+        if (transaction == null) return NotFound();
+        
+        var currency = await _unitOfWork.Currencies.GetByIdAsync(transaction.CurrencyId);
+        
+        var transactionDto = new TransactionDto
+        {
+            Id = transaction.Id,
+            Type = transaction.Type,
+            PartyType = transaction.PartyType,
+            PartyId = transaction.PartyId,
+            CurrencyId = transaction.CurrencyId,
+            CurrencyCode = currency?.Code ?? "",
+            CurrencySymbol = currency?.Symbol ?? "",
+            OriginalAmount = transaction.OriginalAmount,
+            ExchangeRateUsed = transaction.ExchangeRateUsed,
+            AmountInBaseCurrency = transaction.AmountInBaseCurrency,
+            Notes = transaction.Notes,
+            CreatedAt = transaction.CreatedAt
+        };
+        
+        return Ok(transactionDto);
+    }
+
+    [HttpGet("by-party/{partyType}/{partyId}")]
+    [SwaggerOperation(Summary = "Get transactions by party", Description = "Get all transactions for a specific customer or supplier")]
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactionsByParty(string partyType, int partyId)
+    {
+        var transactions = await _unitOfWork.Transactions.FindAsync(t => 
+            t.PartyType.ToString().ToLower() == partyType.ToLower() && t.PartyId == partyId);
+        var currencies = await _unitOfWork.Currencies.GetAllAsync();
+        
+        var transactionDtos = transactions.Select(t => 
+        {
+            var currency = currencies.FirstOrDefault(c => c.Id == t.CurrencyId);
+            return new TransactionDto
+            {
+                Id = t.Id,
+                Type = t.Type,
+                PartyType = t.PartyType,
+                PartyId = t.PartyId,
+                CurrencyId = t.CurrencyId,
+                CurrencyCode = currency?.Code ?? "",
+                CurrencySymbol = currency?.Symbol ?? "",
+                OriginalAmount = t.OriginalAmount,
+                ExchangeRateUsed = t.ExchangeRateUsed,
+                AmountInBaseCurrency = t.AmountInBaseCurrency,
+                Notes = t.Notes,
+                CreatedAt = t.CreatedAt
+            };
+        });
+        
+        return Ok(transactionDtos);
+    }
+
+    [HttpGet("by-type/{transactionType}")]
+    [SwaggerOperation(Summary = "Get transactions by type", Description = "Get all transactions of a specific type")]
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactionsByType(string transactionType)
+    {
+        var transactions = await _unitOfWork.Transactions.FindAsync(t => 
+            t.Type.ToString().ToLower() == transactionType.ToLower());
+        var currencies = await _unitOfWork.Currencies.GetAllAsync();
+        
+        var transactionDtos = transactions.Select(t => 
+        {
+            var currency = currencies.FirstOrDefault(c => c.Id == t.CurrencyId);
+            return new TransactionDto
+            {
+                Id = t.Id,
+                Type = t.Type,
+                PartyType = t.PartyType,
+                PartyId = t.PartyId,
+                CurrencyId = t.CurrencyId,
+                CurrencyCode = currency?.Code ?? "",
+                CurrencySymbol = currency?.Symbol ?? "",
+                OriginalAmount = t.OriginalAmount,
+                ExchangeRateUsed = t.ExchangeRateUsed,
+                AmountInBaseCurrency = t.AmountInBaseCurrency,
+                Notes = t.Notes,
+                CreatedAt = t.CreatedAt
+            };
+        });
+        
+        return Ok(transactionDtos);
+    }
+
+    [HttpPost]
+    [SwaggerOperation(Summary = "Create transaction", Description = "Creates a standalone transaction")]
+    public async Task<ActionResult<TransactionDto>> CreateTransaction([FromBody] CreateTransactionDto createTransactionDto)
+    {
+        var currency = await _unitOfWork.Currencies.GetByIdAsync(createTransactionDto.CurrencyId);
+        if (currency == null)
+            return BadRequest($"Currency with ID {createTransactionDto.CurrencyId} not found");
+
+        var baseCurrencyAmount = await _currencyExchangeService.ConvertToAfghaniAsync(createTransactionDto.OriginalAmount, currency.Id);
+        var exchangeRateUsed = await _currencyExchangeService.GetExchangeRateToAfghaniAsync(currency.Id);
+        
+        var transaction = new Transaction
+        {
+            Type = createTransactionDto.Type,
+            PartyType = createTransactionDto.PartyType,
+            PartyId = createTransactionDto.PartyId,
+            CurrencyId = createTransactionDto.CurrencyId,
+            OriginalAmount = createTransactionDto.OriginalAmount,
+            ExchangeRateUsed = exchangeRateUsed,
+            AmountInBaseCurrency = baseCurrencyAmount,
+            Notes = createTransactionDto.Notes
+        };
+        
+        var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
+        await _unitOfWork.SaveChangesAsync();
+        
+        var transactionDto = new TransactionDto
+        {
+            Id = createdTransaction.Id,
+            Type = createdTransaction.Type,
+            PartyType = createdTransaction.PartyType,
+            PartyId = createdTransaction.PartyId,
+            CurrencyId = createdTransaction.CurrencyId,
+            CurrencyCode = currency.Code,
+            CurrencySymbol = currency.Symbol,
+            OriginalAmount = createdTransaction.OriginalAmount,
+            ExchangeRateUsed = createdTransaction.ExchangeRateUsed,
+            AmountInBaseCurrency = createdTransaction.AmountInBaseCurrency,
+            Notes = createdTransaction.Notes,
+            CreatedAt = createdTransaction.CreatedAt
+        };
+        
+        return CreatedAtAction(nameof(GetTransaction), new { id = createdTransaction.Id }, transactionDto);
+    }
+
+    [HttpPut("{id}")]
+    [SwaggerOperation(Summary = "Update transaction")]
+    public async Task<ActionResult<TransactionDto>> UpdateTransaction(int id, [FromBody] UpdateTransactionDto updateTransactionDto)
+    {
+        var existingTransaction = await _unitOfWork.Transactions.GetByIdAsync(id);
+        if (existingTransaction == null) return NotFound();
+
+        existingTransaction.Notes = updateTransactionDto.Notes;
+        existingTransaction.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Transactions.UpdateAsync(existingTransaction);
+        await _unitOfWork.SaveChangesAsync();
+        
+        var currency = await _unitOfWork.Currencies.GetByIdAsync(existingTransaction.CurrencyId);
+        
+        var transactionDto = new TransactionDto
+        {
+            Id = existingTransaction.Id,
+            Type = existingTransaction.Type,
+            PartyType = existingTransaction.PartyType,
+            PartyId = existingTransaction.PartyId,
+            CurrencyId = existingTransaction.CurrencyId,
+            CurrencyCode = currency?.Code ?? "",
+            CurrencySymbol = currency?.Symbol ?? "",
+            OriginalAmount = existingTransaction.OriginalAmount,
+            ExchangeRateUsed = existingTransaction.ExchangeRateUsed,
+            AmountInBaseCurrency = existingTransaction.AmountInBaseCurrency,
+            Notes = existingTransaction.Notes,
+            CreatedAt = existingTransaction.CreatedAt
+        };
+        
+        return Ok(transactionDto);
+    }
+
+    [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete transaction")]
+    public async Task<ActionResult> DeleteTransaction(int id)
+    {
+        var transaction = await _unitOfWork.Transactions.GetByIdAsync(id);
+        if (transaction == null) return NotFound();
+
+        await _unitOfWork.Transactions.DeleteAsync(transaction);
+        await _unitOfWork.SaveChangesAsync();
+        return NoContent();
+    }
+}

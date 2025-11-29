@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using ShopManagementSystem.Application.DTOs;
 using ShopManagementSystem.Domain.Entities;
 using ShopManagementSystem.Domain.Interfaces;
-using Swashbuckle.AspNetCore.Annotations;
+using ShopManagementSystem.Domain.Enums;
 
 namespace ShopManagementSystem.API.Controllers;
 
 [ApiController]
 [Route("api/expenses")]
-[SwaggerTag("Expense management endpoints")]
 public class ExpensesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -19,89 +17,114 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
-    [SwaggerOperation(Summary = "Get all expenses")]
-    [SwaggerResponse(200, "Expenses retrieved successfully", typeof(IEnumerable<ExpenseDto>))]
     public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpenses()
     {
         var expenses = await _unitOfWork.Expenses.GetAllAsync();
-        var expenseDtos = expenses.Select(e => new ExpenseDto
+        var expenseTypes = await _unitOfWork.ExpenseTypes.GetAllAsync();
+        var currencies = await _unitOfWork.Currencies.GetAllAsync();
+        
+        var dtos = expenses.Select(e => new ExpenseDto
         {
             Id = e.Id,
-            Category = e.Category,
+            Date = e.Date,
             Amount = e.Amount,
-            Currency = e.Currency,
+            ExpenseTypeId = e.ExpenseTypeId,
+            ExpenseTypeName = expenseTypes.FirstOrDefault(et => et.Id == e.ExpenseTypeId)?.Name ?? "Unknown",
+            CurrencyId = e.CurrencyId,
+            CurrencyCode = currencies.FirstOrDefault(c => c.Id == e.CurrencyId)?.Code ?? "Unknown",
+            ExchangeRate = e.ExchangeRate,
+            Description = e.Description,
             CreatedAt = e.CreatedAt
         });
-        return Ok(expenseDtos);
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
-    [SwaggerOperation(Summary = "Get expense by ID")]
-    [SwaggerResponse(200, "Expense found", typeof(ExpenseDto))]
-    [SwaggerResponse(404, "Expense not found")]
     public async Task<ActionResult<ExpenseDto>> GetExpense(int id)
     {
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null) return NotFound();
         
-        var expenseDto = new ExpenseDto
+        var expenseType = await _unitOfWork.ExpenseTypes.GetByIdAsync(expense.ExpenseTypeId);
+        var currency = await _unitOfWork.Currencies.GetByIdAsync(expense.CurrencyId);
+        
+        var dto = new ExpenseDto
         {
             Id = expense.Id,
-            Category = expense.Category,
+            Date = expense.Date,
             Amount = expense.Amount,
-            Currency = expense.Currency,
+            ExpenseTypeId = expense.ExpenseTypeId,
+            ExpenseTypeName = expenseType?.Name ?? "Unknown",
+            CurrencyId = expense.CurrencyId,
+            CurrencyCode = currency?.Code ?? "Unknown",
+            ExchangeRate = expense.ExchangeRate,
+            Description = expense.Description,
             CreatedAt = expense.CreatedAt
         };
-        return Ok(expenseDto);
+        return Ok(dto);
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create expense")]
-    [SwaggerResponse(201, "Expense created successfully", typeof(ExpenseDto))]
-    public async Task<ActionResult<ExpenseDto>> CreateExpense([FromBody] CreateExpenseDto createExpenseDto)
+    public async Task<ActionResult<ExpenseDto>> CreateExpense([FromBody] CreateExpenseRequest request)
     {
         await _unitOfWork.BeginTransactionAsync();
         
         try
         {
-            // Create transaction first
-            var transaction = new Transaction
-            {
-                Type = Domain.Enums.TransactionType.Expense,
-                PartyType = Domain.Enums.PartyType.None,
-                OriginalAmount = createExpenseDto.Amount,
-                Currency = createExpenseDto.Currency,
-                ExchangeRateToUsd = 1.0m,
-                AmountUsd = createExpenseDto.Amount,
-                Notes = $"Expense: {createExpenseDto.Category}"
-            };
-
-            var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
-            await _unitOfWork.SaveChangesAsync();
+            // Validate expense type exists
+            var expenseType = await _unitOfWork.ExpenseTypes.GetByIdAsync(request.ExpenseTypeId);
+            if (expenseType == null) return BadRequest("Invalid expense type");
+            
+            // Validate currency exists
+            var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
+            if (currency == null) return BadRequest("Invalid currency");
 
             var expense = new Expense
             {
-                TransactionId = createdTransaction.Id,
-                Category = createExpenseDto.Category,
-                Amount = createExpenseDto.Amount,
-                Currency = createExpenseDto.Currency
+                Date = request.Date,
+                Amount = request.Amount,
+                ExpenseTypeId = request.ExpenseTypeId,
+                CurrencyId = request.CurrencyId,
+                ExchangeRate = request.ExchangeRate,
+                Description = request.Description
             };
             
-            var createdExpense = await _unitOfWork.Expenses.AddAsync(expense);
+            var created = await _unitOfWork.Expenses.AddAsync(expense);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Create cashbook entry for expense (cash out)
+            var cashbookEntry = new CashBook
+            {
+                Date = request.Date,
+                Description = $"Expense: {expenseType.Name} - {request.Description}",
+                CashIn = 0,
+                CashOut = request.Amount,
+                CurrencyId = request.CurrencyId,
+                ExchangeRate = request.ExchangeRate,
+                ModuleType = ModuleType.Expense,
+                ModuleId = created.Id
+            };
+
+            await _unitOfWork.CashBooks.AddAsync(cashbookEntry);
             await _unitOfWork.SaveChangesAsync();
 
             await _unitOfWork.CommitTransactionAsync();
             
-            var expenseDto = new ExpenseDto
+            var dto = new ExpenseDto
             {
-                Id = createdExpense.Id,
-                Category = createdExpense.Category,
-                Amount = createdExpense.Amount,
-                Currency = createdExpense.Currency,
-                CreatedAt = createdExpense.CreatedAt
+                Id = created.Id,
+                Date = created.Date,
+                Amount = created.Amount,
+                ExpenseTypeId = created.ExpenseTypeId,
+                ExpenseTypeName = expenseType.Name,
+                CurrencyId = created.CurrencyId,
+                CurrencyCode = currency.Code,
+                ExchangeRate = created.ExchangeRate,
+                Description = created.Description,
+                CreatedAt = created.CreatedAt
             };
             
-            return CreatedAtAction(nameof(GetExpense), new { id = expenseDto.Id }, expenseDto);
+            return CreatedAtAction(nameof(GetExpense), new { id = dto.Id }, dto);
         }
         catch
         {
@@ -111,36 +134,48 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [SwaggerOperation(Summary = "Update expense")]
-    [SwaggerResponse(200, "Expense updated successfully", typeof(ExpenseDto))]
-    [SwaggerResponse(404, "Expense not found")]
-    public async Task<ActionResult<ExpenseDto>> UpdateExpense(int id, [FromBody] UpdateExpenseDto updateExpenseDto)
+    public async Task<ActionResult<ExpenseDto>> UpdateExpense(int id, [FromBody] UpdateExpenseRequest request)
     {
-        var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (existingExpense == null) return NotFound();
+        var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
+        if (expense == null) return NotFound();
 
-        existingExpense.Category = updateExpenseDto.Category;
-        existingExpense.Amount = updateExpenseDto.Amount;
-        existingExpense.Currency = updateExpenseDto.Currency;
-        existingExpense.UpdatedAt = DateTime.UtcNow;
+        // Validate expense type exists
+        var expenseType = await _unitOfWork.ExpenseTypes.GetByIdAsync(request.ExpenseTypeId);
+        if (expenseType == null) return BadRequest("Invalid expense type");
+        
+        // Validate currency exists
+        var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
+        if (currency == null) return BadRequest("Invalid currency");
 
-        await _unitOfWork.Expenses.UpdateAsync(existingExpense);
+        expense.Date = request.Date;
+        expense.Amount = request.Amount;
+        expense.ExpenseTypeId = request.ExpenseTypeId;
+        expense.CurrencyId = request.CurrencyId;
+        expense.ExchangeRate = request.ExchangeRate;
+        expense.Description = request.Description;
+        expense.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Expenses.UpdateAsync(expense);
         await _unitOfWork.SaveChangesAsync();
         
-        var expenseDto = new ExpenseDto
+        var dto = new ExpenseDto
         {
-            Id = existingExpense.Id,
-            Category = existingExpense.Category,
-            Amount = existingExpense.Amount,
-            Currency = existingExpense.Currency,
-            CreatedAt = existingExpense.CreatedAt
+            Id = expense.Id,
+            Date = expense.Date,
+            Amount = expense.Amount,
+            ExpenseTypeId = expense.ExpenseTypeId,
+            ExpenseTypeName = expenseType.Name,
+            CurrencyId = expense.CurrencyId,
+            CurrencyCode = currency.Code,
+            ExchangeRate = expense.ExchangeRate,
+            Description = expense.Description,
+            CreatedAt = expense.CreatedAt
         };
         
-        return Ok(expenseDto);
+        return Ok(dto);
     }
 
     [HttpDelete("{id}")]
-    [SwaggerOperation(Summary = "Delete expense")]
     public async Task<ActionResult> DeleteExpense(int id)
     {
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
@@ -150,4 +185,38 @@ public class ExpensesController : ControllerBase
         await _unitOfWork.SaveChangesAsync();
         return NoContent();
     }
+}
+
+public class ExpenseDto
+{
+    public int Id { get; set; }
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
+    public int ExpenseTypeId { get; set; }
+    public string ExpenseTypeName { get; set; } = string.Empty;
+    public int CurrencyId { get; set; }
+    public string CurrencyCode { get; set; } = string.Empty;
+    public decimal ExchangeRate { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+}
+
+public class CreateExpenseRequest
+{
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
+    public int ExpenseTypeId { get; set; }
+    public int CurrencyId { get; set; }
+    public decimal ExchangeRate { get; set; } = 1.0m;
+    public string Description { get; set; } = string.Empty;
+}
+
+public class UpdateExpenseRequest
+{
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
+    public int ExpenseTypeId { get; set; }
+    public int CurrencyId { get; set; }
+    public decimal ExchangeRate { get; set; } = 1.0m;
+    public string Description { get; set; } = string.Empty;
 }

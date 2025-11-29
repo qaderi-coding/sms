@@ -1,0 +1,103 @@
+### Test Purchase API
+
+### 1. Get all purchases
+GET http://localhost:5000/api/purchases
+Content-Type: application/json
+
+### 2. Create purchase in USD
+POST http://localhost:5000/api/purchases/bulk-create
+Content-Type: application/json
+
+{
+  "supplierId": 1,
+  "currencyId": 2,
+  "paymentStatusId": 1,
+  "totalAmount": 500.00,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 10,
+      "unitPrice": 30.00,
+      "totalPrice": 300.00
+    },
+    {
+      "productId": 2,
+      "quantity": 5,
+      "unitPrice": 40.00,
+      "totalPrice": 200.00
+    }
+  ]
+}
+
+### 3. Create purchase in Iranian Rial
+POST http://localhost:5000/api/purchases/bulk-create
+Content-Type: application/json
+
+{
+  "supplierId": 2,
+  "currencyId": 3,
+  "paymentStatusId": 1,
+  "totalAmount": 35000000.00,
+  "items": [
+    {
+      "productId": 3,
+      "quantity": 20,
+      "unitPrice": 1750000.00,
+      "totalPrice": 35000000.00
+    }
+  ]
+}
+
+### 4. Create purchase in Afghani (base currency)
+POST http://localhost:5000/api/purchases/bulk-create
+Content-Type: application/json
+
+{
+  "supplierId": 1,
+  "currencyId": 1,
+  "paymentStatusId": 2,
+  "totalAmount": 15000.00,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 15,
+      "unitPrice": 1000.00,
+      "totalPrice": 15000.00
+    }
+  ]
+}
+
+### 5. Get specific purchase
+GET http://localhost:5000/api/purchases/1
+Content-Type: application/json
+
+### 6. Update purchase
+PUT http://localhost:5000/api/purchases/bulk-update/1
+Content-Type: application/json
+
+{
+  "supplierId": 1,
+  "currencyId": 2,
+  "paymentStatusId": 3,
+  "totalAmount": 600.00,
+  "items": []
+}
+
+### 7. Create purchase return
+POST http://localhost:5000/api/purchases/returns/bulk-create
+Content-Type: application/json
+
+{
+  "supplierId": 1,
+  "currencyId": 2,
+  "paymentStatusId": 1,
+  "totalAmount": 100.00,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "unitPrice": 50.00,
+      "totalPrice": 100.00
+    }
+  ]
+}
