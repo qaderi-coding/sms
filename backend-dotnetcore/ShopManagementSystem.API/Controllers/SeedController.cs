@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ShopManagementSystem.Infrastructure.Data;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -25,24 +26,28 @@ public class SeedController : ControllerBase
     }
 
     [HttpPost("all")]
-    [SwaggerOperation(Summary = "Seed all tables with sample data")]
-    [SwaggerResponse(200, "Database seeded successfully")]
+    [SwaggerOperation(Summary = "Migrate and seed all tables with sample data")]
+    [SwaggerResponse(200, "Database migrated and seeded successfully")]
     public async Task<ActionResult> SeedAll()
     {
         try
         {
+            // Ensure database is created
+            await _context.Database.EnsureCreatedAsync();
+            
+            // Then seed data
             await DatabaseSeeder.SeedAsync(_context, _userManager, _roleManager);
-            return Ok(new { message = "Database seeded successfully" });
+            return Ok(new { message = "Database created and seeded successfully" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "Seeding failed", error = ex.Message });
+            return BadRequest(new { message = "Database creation and seeding failed", error = ex.Message });
         }
     }
 
     [HttpPost("reset")]
-    [SwaggerOperation(Summary = "Reset and seed database")]
-    [SwaggerResponse(200, "Database reset and seeded successfully")]
+    [SwaggerOperation(Summary = "Reset, create and seed database")]
+    [SwaggerResponse(200, "Database reset, created and seeded successfully")]
     public async Task<ActionResult> ResetAndSeed()
     {
         try
@@ -50,11 +55,11 @@ public class SeedController : ControllerBase
             await _context.Database.EnsureDeletedAsync();
             await _context.Database.EnsureCreatedAsync();
             await DatabaseSeeder.SeedAsync(_context, _userManager, _roleManager);
-            return Ok(new { message = "Database reset and seeded successfully" });
+            return Ok(new { message = "Database reset, created and seeded successfully" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "Reset and seeding failed", error = ex.Message });
+            return BadRequest(new { message = "Reset, creation and seeding failed", error = ex.Message });
         }
     }
 }

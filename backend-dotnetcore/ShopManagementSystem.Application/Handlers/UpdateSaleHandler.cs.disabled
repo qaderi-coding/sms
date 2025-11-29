@@ -1,0 +1,105 @@
+using MediatR;
+using ShopManagementSystem.Application.Commands;
+using ShopManagementSystem.Application.DTOs;
+using ShopManagementSystem.Domain.Entities;
+using ShopManagementSystem.Domain.Interfaces;
+
+namespace ShopManagementSystem.Application.Handlers;
+
+public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, SaleDto>
+{
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateSaleHandler(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<SaleDto> Handle(UpdateSaleCommand request, CancellationToken cancellationToken)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        
+        try
+        {
+            var existingSale = await _unitOfWork.Sales.GetByIdAsync(request.Id);
+            if (existingSale == null)
+                throw new ArgumentException($"Sale with ID {request.Id} not found");
+
+            // Get currency by ID
+            var currency = await _unitOfWork.Currencies.GetByIdAsync(request.Sale.CurrencyId);
+            if (currency == null)
+                throw new ArgumentException($"Currency with ID '{request.Sale.CurrencyId}' not found");
+
+            // Update sale properties
+            existingSale.CustomerId = request.Sale.CustomerId;
+            existingSale.SaleDate = request.Sale.SaleDate;
+            existingSale.CurrencyId = currency.Id;
+            existingSale.PaymentStatusId = request.Sale.PaymentStatus;
+            existingSale.Discount = request.Sale.Discount;
+            existingSale.Notes = request.Sale.Notes;
+            existingSale.TotalAmount = request.Sale.Items.Sum(i => i.TotalPrice);
+            existingSale.FinalAmount = existingSale.TotalAmount - request.Sale.Discount;
+            existingSale.UpdatedAt = DateTime.UtcNow;
+
+            // Remove existing items
+            foreach (var item in existingSale.Items.ToList())
+            {
+                await _unitOfWork.SaleItems.DeleteAsync(item);
+            }
+
+            // Add new items
+            foreach (var itemDto in request.Sale.Items)
+            {
+                var saleItem = new SaleItem
+                {
+                    SaleId = existingSale.Id,
+                    ProductId = itemDto.ProductId,
+                    Quantity = itemDto.Quantity,
+                    UnitPrice = itemDto.UnitPrice,
+                    TotalPrice = itemDto.TotalPrice,
+                    CurrencyId = currency.Id
+                };
+                await _unitOfWork.SaleItems.AddAsync(saleItem);
+            }
+
+            await _unitOfWork.Sales.UpdateAsync(existingSale);
+            await _unitOfWork.SaveChangesAsync();
+            
+            var customer = await _unitOfWork.Customers.GetByIdAsync(existingSale.CustomerId);
+            var products = await _unitOfWork.Products.GetAllAsync();
+            var paymentStatus = await _unitOfWork.PaymentStatuses.GetByIdAsync(existingSale.PaymentStatusId);
+
+            await _unitOfWork.CommitTransactionAsync();
+
+            return new SaleDto
+            {
+                Id = existingSale.Id,
+                CustomerId = existingSale.CustomerId,
+                CustomerName = customer?.Name ?? "",
+                SaleDate = existingSale.SaleDate,
+                TotalAmount = existingSale.TotalAmount,
+                Currency = currency.Code,
+                CurrencySymbol = currency.Symbol,
+                Discount = existingSale.Discount,
+                FinalAmount = existingSale.FinalAmount,
+                PaymentStatus = (Domain.Enums.PaymentStatusEnum)(existingSale.PaymentStatusId - 1),
+                PaymentStatusName = paymentStatus?.Name ?? "",
+                Notes = existingSale.Notes,
+                Items = existingSale.Items.Select(i => new SaleItemDto
+                {
+                    Id = i.Id,
+                    ProductId = i.ProductId,
+                    ProductName = products.FirstOrDefault(p => p.Id == i.ProductId)?.Name ?? "",
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.TotalPrice
+                }).ToList()
+            };
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+}

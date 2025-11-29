@@ -25,7 +25,7 @@ public class GetCustomersHandler : IRequestHandler<GetCustomersQuery, IEnumerabl
             Name = c.Name,
             Phone = c.Phone,
             Address = c.Address,
-            Email = c.Email,
+            OpeningBalance = c.OpeningBalance,
             CreatedAt = c.CreatedAt,
             UpdatedAt = c.UpdatedAt
         });
@@ -52,7 +52,7 @@ public class GetCustomerByIdHandler : IRequestHandler<GetCustomerByIdQuery, Cust
             Name = customer.Name,
             Phone = customer.Phone,
             Address = customer.Address,
-            Email = customer.Email,
+            OpeningBalance = customer.OpeningBalance,
             CreatedAt = customer.CreatedAt,
             UpdatedAt = customer.UpdatedAt
         };
@@ -75,7 +75,7 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Cust
             Name = request.Request.Name,
             Phone = request.Request.Phone,
             Address = request.Request.Address,
-            Email = request.Request.Email
+            OpeningBalance = request.Request.OpeningBalance
         };
 
         var createdCustomer = await _unitOfWork.Customers.AddAsync(customer);
@@ -87,7 +87,7 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Cust
             Name = createdCustomer.Name,
             Phone = createdCustomer.Phone,
             Address = createdCustomer.Address,
-            Email = createdCustomer.Email,
+            OpeningBalance = createdCustomer.OpeningBalance,
             CreatedAt = createdCustomer.CreatedAt,
             UpdatedAt = createdCustomer.UpdatedAt
         };
@@ -112,7 +112,7 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Cust
         customer.Name = request.Request.Name;
         customer.Phone = request.Request.Phone;
         customer.Address = request.Request.Address;
-        customer.Email = request.Request.Email;
+        customer.OpeningBalance = request.Request.OpeningBalance;
         customer.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Customers.UpdateAsync(customer);
@@ -124,7 +124,7 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Cust
             Name = customer.Name,
             Phone = customer.Phone,
             Address = customer.Address,
-            Email = customer.Email,
+            OpeningBalance = customer.OpeningBalance,
             CreatedAt = customer.CreatedAt,
             UpdatedAt = customer.UpdatedAt
         };

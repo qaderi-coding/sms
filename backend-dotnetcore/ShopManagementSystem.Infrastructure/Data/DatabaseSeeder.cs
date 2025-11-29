@@ -9,8 +9,6 @@ public static class DatabaseSeeder
 {
     public static async Task SeedAsync(ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        await context.Database.EnsureCreatedAsync();
-
         // Seed Roles
         await SeedRoles(roleManager);
 
@@ -19,6 +17,7 @@ public static class DatabaseSeeder
 
         // Seed Master Data
         await SeedCurrencies(context);
+        await SeedPaymentStatuses(context);
         await SeedUnits(context);
         await SeedCategories(context);
         await SeedCompanies(context);
@@ -26,6 +25,7 @@ public static class DatabaseSeeder
         await SeedCustomers(context);
         await SeedSuppliers(context);
         await SeedProducts(context);
+        await SeedItems(context);
 
         await context.SaveChangesAsync();
     }
@@ -68,12 +68,29 @@ public static class DatabaseSeeder
         {
             var currencies = new[]
             {
-                new Currency { Code = "USD", Name = "US Dollar", Symbol = "$" },
-                new Currency { Code = "EUR", Name = "Euro", Symbol = "€" },
-                new Currency { Code = "PKR", Name = "Pakistani Rupee", Symbol = "₨" },
-                new Currency { Code = "INR", Name = "Indian Rupee", Symbol = "₹" }
+                new Currency { Code = "AFN", Name = "Afghan Afghani", Symbol = "؋", IsActive = true, IsBaseCurrency = true, CurrentExchangeRate = 1.0m },
+                new Currency { Code = "USD", Name = "US Dollar", Symbol = "$", IsActive = true, CurrentExchangeRate = 71.4m },
+                new Currency { Code = "IRR", Name = "Iranian Rial", Symbol = "﷼", IsActive = true, CurrentExchangeRate = 0.0017m },
+                new Currency { Code = "CNY", Name = "Chinese Yuan", Symbol = "¥", IsActive = true, CurrentExchangeRate = 10.0m },
+                new Currency { Code = "PKR", Name = "Pakistani Rupee", Symbol = "₨", IsActive = true, CurrentExchangeRate = 0.26m }
             };
             await context.Currencies.AddRangeAsync(currencies);
+        }
+    }
+
+    private static async Task SeedPaymentStatuses(ApplicationDbContext context)
+    {
+        if (!await context.PaymentStatuses.AnyAsync())
+        {
+            var paymentStatuses = new[]
+            {
+                new Domain.Entities.PaymentStatus { Code = "PENDING", Name = "Pending", Description = "Payment is pending", IsActive = true, SortOrder = 1 },
+                new Domain.Entities.PaymentStatus { Code = "PARTIAL", Name = "Partial", Description = "Payment is partially completed", IsActive = true, SortOrder = 2 },
+                new Domain.Entities.PaymentStatus { Code = "PAID", Name = "Paid", Description = "Payment is fully completed", IsActive = true, SortOrder = 3 },
+                new Domain.Entities.PaymentStatus { Code = "CANCELLED", Name = "Cancelled", Description = "Payment was cancelled", IsActive = true, SortOrder = 4 },
+                new Domain.Entities.PaymentStatus { Code = "REFUNDED", Name = "Refunded", Description = "Payment was refunded", IsActive = true, SortOrder = 5 }
+            };
+            await context.PaymentStatuses.AddRangeAsync(paymentStatuses);
         }
     }
 
@@ -155,11 +172,11 @@ public static class DatabaseSeeder
         {
             var customers = new[]
             {
-                new Customer { Name = "Ahmed Ali", Phone = "+92-300-1234567", Address = "123 Main St, Karachi", Email = "ahmed@email.com" },
-                new Customer { Name = "Sara Khan", Phone = "+92-301-2345678", Address = "456 Park Ave, Lahore", Email = "sara@email.com" },
-                new Customer { Name = "Muhammad Hassan", Phone = "+92-302-3456789", Address = "789 Garden Rd, Islamabad", Email = "hassan@email.com" },
-                new Customer { Name = "Fatima Sheikh", Phone = "+92-303-4567890", Address = "321 Mall Rd, Faisalabad", Email = "fatima@email.com" },
-                new Customer { Name = "Ali Raza", Phone = "+92-304-5678901", Address = "654 Canal Rd, Multan", Email = "ali@email.com" }
+                new Customer { Name = "Ahmed Ali", Phone = "+92-300-1234567", Address = "123 Main St, Karachi", OpeningBalance = 0 },
+                new Customer { Name = "Sara Khan", Phone = "+92-301-2345678", Address = "456 Park Ave, Lahore", OpeningBalance = 1500 },
+                new Customer { Name = "Muhammad Hassan", Phone = "+92-302-3456789", Address = "789 Garden Rd, Islamabad", OpeningBalance = 0 },
+                new Customer { Name = "Fatima Sheikh", Phone = "+92-303-4567890", Address = "321 Mall Rd, Faisalabad", OpeningBalance = 2000 },
+                new Customer { Name = "Ali Raza", Phone = "+92-304-5678901", Address = "654 Canal Rd, Multan", OpeningBalance = 0 }
             };
             await context.Customers.AddRangeAsync(customers);
         }
@@ -171,12 +188,27 @@ public static class DatabaseSeeder
         {
             var suppliers = new[]
             {
-                new Supplier { Name = "Bike Parts Wholesale", Phone = "+92-21-1234567", Address = "Industrial Area, Karachi" },
-                new Supplier { Name = "Motor Accessories Ltd", Phone = "+92-42-2345678", Address = "Shalimar Link Rd, Lahore" },
-                new Supplier { Name = "Auto Parts Depot", Phone = "+92-51-3456789", Address = "Blue Area, Islamabad" },
-                new Supplier { Name = "Spare Parts Hub", Phone = "+92-41-4567890", Address = "Jaranwala Rd, Faisalabad" }
+                new Supplier { Name = "Bike Parts Wholesale", Phone = "+92-21-1234567", Address = "Industrial Area, Karachi", OpeningBalance = 0 },
+                new Supplier { Name = "Motor Accessories Ltd", Phone = "+92-42-2345678", Address = "Shalimar Link Rd, Lahore", OpeningBalance = 5000 },
+                new Supplier { Name = "Parts Express", Phone = "+92-51-3456789", Address = "Blue Area, Islamabad", OpeningBalance = 0 }
             };
             await context.Suppliers.AddRangeAsync(suppliers);
+        }
+    }
+
+    private static async Task SeedItems(ApplicationDbContext context)
+    {
+        if (!await context.Items.AnyAsync())
+        {
+            var items = new[]
+            {
+                new Item { Name = "Engine Oil 10W-40", Unit = "Liter", OpeningQty = 50, OpeningCost = 800 },
+                new Item { Name = "Brake Pads", Unit = "Set", OpeningQty = 25, OpeningCost = 1200 },
+                new Item { Name = "Air Filter", Unit = "Piece", OpeningQty = 30, OpeningCost = 600 },
+                new Item { Name = "Spark Plug", Unit = "Piece", OpeningQty = 100, OpeningCost = 300 },
+                new Item { Name = "Chain Lubricant", Unit = "Bottle", OpeningQty = 20, OpeningCost = 450 }
+            };
+            await context.Items.AddRangeAsync(items);
         }
     }
 

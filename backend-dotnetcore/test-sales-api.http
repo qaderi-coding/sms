@@ -1,0 +1,139 @@
+### Test Sales API with Multiple Currencies
+
+### 1. Get all currencies first
+GET http://localhost:5000/api/core/currencies
+Content-Type: application/json
+
+### 2. Get all customers
+GET http://localhost:5000/api/customers
+Content-Type: application/json
+
+### 3. Get all products
+GET http://localhost:5000/api/products
+Content-Type: application/json
+
+### 4. Create a sale in PKR
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "saleDate": "2024-11-17T10:00:00Z",
+  "totalAmount": 5500.00,
+  "currency": "PKR",
+  "discount": 200.00,
+  "paymentStatus": 1,
+  "notes": "Engine oil and brake pads - PKR sale",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "unitPrice": 850.00,
+      "totalPrice": 1700.00
+    },
+    {
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 1200.00,
+      "totalPrice": 1200.00
+    },
+    {
+      "productId": 4,
+      "quantity": 5,
+      "unitPrice": 350.00,
+      "totalPrice": 1750.00
+    },
+    {
+      "productId": 3,
+      "quantity": 2,
+      "unitPrice": 450.00,
+      "totalPrice": 900.00
+    }
+  ]
+}
+
+### 5. Create a sale in USD
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 2,
+  "saleDate": "2024-11-17T11:00:00Z",
+  "totalAmount": 800.00,
+  "currency": "USD",
+  "discount": 50.00,
+  "paymentStatus": 2,
+  "notes": "Air filter and spark plug - USD sale",
+  "items": [
+    {
+      "productId": 3,
+      "quantity": 1,
+      "unitPrice": 450.00,
+      "totalPrice": 450.00
+    },
+    {
+      "productId": 4,
+      "quantity": 1,
+      "unitPrice": 350.00,
+      "totalPrice": 350.00
+    }
+  ]
+}
+
+### 6. Create a sale in EUR
+POST http://localhost:5000/api/sales/bulk-create
+Content-Type: application/json
+
+{
+  "customerId": 3,
+  "saleDate": "2024-11-17T12:00:00Z",
+  "totalAmount": 750.00,
+  "currency": "EUR",
+  "discount": 0.00,
+  "paymentStatus": 0,
+  "notes": "Chain set - EUR sale",
+  "items": [
+    {
+      "productId": 5,
+      "quantity": 1,
+      "unitPrice": 750.00,
+      "totalPrice": 750.00
+    }
+  ]
+}
+
+### 7. Get all sales to verify
+GET http://localhost:5000/api/sales
+Content-Type: application/json
+
+### 8. Get specific sale by ID
+GET http://localhost:5000/api/sales/1
+Content-Type: application/json
+
+### 9. Update a sale (change currency from PKR to USD)
+PUT http://localhost:5000/api/sales/bulk-update/1
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "saleDate": "2024-11-17T10:00:00Z",
+  "totalAmount": 200.00,
+  "currency": "USD",
+  "discount": 10.00,
+  "paymentStatus": 2,
+  "notes": "Updated sale - converted to USD",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 100.00,
+      "totalPrice": 100.00
+    },
+    {
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 100.00,
+      "totalPrice": 100.00
+    }
+  ]
+}

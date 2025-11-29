@@ -1,0 +1,76 @@
+### Test Transaction API
+
+### 1. Get all transactions
+GET http://localhost:5000/api/transactions
+Content-Type: application/json
+
+### 2. Create transaction in USD
+POST http://localhost:5000/api/transactions
+Content-Type: application/json
+
+{
+  "type": 0,
+  "partyType": 0,
+  "partyId": 1,
+  "currencyId": 2,
+  "originalAmount": 1000.00,
+  "notes": "Payment received from customer in USD"
+}
+
+### 3. Create transaction in Iranian Rial
+POST http://localhost:5000/api/transactions
+Content-Type: application/json
+
+{
+  "type": 1,
+  "partyType": 1,
+  "partyId": 1,
+  "currencyId": 3,
+  "originalAmount": 5000000.00,
+  "notes": "Payment to supplier in Iranian Rial"
+}
+
+### 4. Create transaction in Afghani (base currency)
+POST http://localhost:5000/api/transactions
+Content-Type: application/json
+
+{
+  "type": 2,
+  "partyType": 2,
+  "partyId": null,
+  "currencyId": 1,
+  "originalAmount": 2500.00,
+  "notes": "Office rent expense in Afghani"
+}
+
+### 5. Get specific transaction
+GET http://localhost:5000/api/transactions/1
+Content-Type: application/json
+
+### 6. Get transactions by party (Customer transactions)
+GET http://localhost:5000/api/transactions/by-party/customer/1
+Content-Type: application/json
+
+### 7. Get transactions by party (Supplier transactions)
+GET http://localhost:5000/api/transactions/by-party/supplier/1
+Content-Type: application/json
+
+### 8. Get transactions by type (Sale transactions)
+GET http://localhost:5000/api/transactions/by-type/sale
+Content-Type: application/json
+
+### 9. Get transactions by type (Purchase transactions)
+GET http://localhost:5000/api/transactions/by-type/purchase
+Content-Type: application/json
+
+### 10. Update transaction notes
+PUT http://localhost:5000/api/transactions/1
+Content-Type: application/json
+
+{
+  "notes": "Updated payment notes - customer paid in full"
+}
+
+### 11. Delete transaction
+DELETE http://localhost:5000/api/transactions/1
+Content-Type: application/json

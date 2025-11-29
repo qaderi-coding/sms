@@ -1,0 +1,200 @@
+Building...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+Database created/ensured
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DROP TABLE IF EXISTS CurrencyExchangeRates
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  CREATE TABLE CurrencyExchangeRates (
+                      Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      CurrencyId INTEGER NOT NULL,
+                      RateToAfghani TEXT NOT NULL,
+                      Date TEXT NOT NULL,
+                      EffectiveDate TEXT,
+                      Source TEXT,
+                      IsActive INTEGER DEFAULT 1,
+                      CreatedAt TEXT DEFAULT (datetime('now')),
+                      UpdatedAt TEXT DEFAULT (datetime('now'))
+                  )
+Recreated CurrencyExchangeRates table with correct schema
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT INTO CurrencyExchangeRates (CurrencyId, RateToAfghani, Date, EffectiveDate, Source, IsActive) VALUES
+                  (1, '1.0', '2024-01-01', '2024-01-01', 'System', 1),
+                  (2, '0.014', '2024-01-01', '2024-01-01', 'System', 1),
+                  (3, '0.012', '2024-01-01', '2024-01-01', 'System', 1)
+Seeded exchange rate data
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      
+                  INSERT OR IGNORE INTO Currencies (Id, Code, Name, Symbol, IsBaseCurrency, IsActive, CurrentExchangeRate, LastUpdated, CreatedAt, UpdatedAt) VALUES
+                  (1, 'AFN', 'Afghan Afghani', '؋', 1, 1, '1.0', '2024-01-01', datetime('now'), datetime('now')),
+                  (2, 'USD', 'US Dollar', '$', 0, 1, '0.014', '2024-01-01', datetime('now'), datetime('now')),
+                  (3, 'EUR', 'Euro', '€', 0, 1, '0.012', '2024-01-01', datetime('now'), datetime('now'))
+Error seeding basic data: SQLite Error 1: 'no such table: Currencies'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrentExchangeRate FROM Currencies LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Currencies ADD COLUMN CurrentExchangeRate TEXT DEFAULT '1.0'
+Failed to add column CurrentExchangeRate: SQLite Error 1: 'no such table: Currencies'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT LastUpdated FROM Currencies LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Currencies ADD COLUMN LastUpdated TEXT DEFAULT '2024-01-01'
+Failed to add column LastUpdated: SQLite Error 1: 'no such table: Currencies'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT IsBaseCurrency FROM Currencies LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Currencies ADD COLUMN IsBaseCurrency INTEGER DEFAULT 0
+Failed to add column IsBaseCurrency: SQLite Error 1: 'no such table: Currencies'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT IsActive FROM Currencies LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Currencies ADD COLUMN IsActive INTEGER DEFAULT 1
+Failed to add column IsActive: SQLite Error 1: 'no such table: Currencies'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT Code FROM PaymentStatuses LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE PaymentStatuses ADD COLUMN Code TEXT DEFAULT ''
+Failed to add PaymentStatuses column Code: SQLite Error 1: 'no such table: PaymentStatuses'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT Description FROM PaymentStatuses LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE PaymentStatuses ADD COLUMN Description TEXT DEFAULT ''
+Failed to add PaymentStatuses column Description: SQLite Error 1: 'no such table: PaymentStatuses'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT IsActive FROM PaymentStatuses LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE PaymentStatuses ADD COLUMN IsActive INTEGER DEFAULT 1
+Failed to add PaymentStatuses column IsActive: SQLite Error 1: 'no such table: PaymentStatuses'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT SortOrder FROM PaymentStatuses LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE PaymentStatuses ADD COLUMN SortOrder INTEGER DEFAULT 0
+Failed to add PaymentStatuses column SortOrder: SQLite Error 1: 'no such table: PaymentStatuses'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      UPDATE Sales SET CurrencyId = 1 WHERE CurrencyId IS NULL
+Error updating Sales CurrencyId: SQLite Error 1: 'no such table: Sales'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrencyId FROM Sales LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Sales ADD COLUMN CurrencyId INTEGER DEFAULT 1
+Failed to add Sales column CurrencyId: SQLite Error 1: 'no such table: Sales'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT PaymentStatusId FROM Sales LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE Sales ADD COLUMN PaymentStatusId INTEGER DEFAULT 1
+Failed to add Sales column PaymentStatusId: SQLite Error 1: 'no such table: Sales'.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CurrencyId FROM SaleItems LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE SaleItems ADD COLUMN CurrencyId INTEGER DEFAULT 1
+Failed to add SaleItems column CurrencyId: SQLite Error 1: 'no such table: SaleItems'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5694
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."Address", "c"."CreatedAt", "c"."Name", "c"."OpeningBalance", "c"."Phone", "c"."UpdatedAt"
+      FROM "Customers" AS "c"
+      WHERE "c"."Id" = @__p_0
+      LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Query[10100]
+      An exception occurred while iterating over the results of a query for context type 'ShopManagementSystem.Infrastructure.Data.ApplicationDbContext'.
+      Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: Customers'.
+         at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+         at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+      Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: Customers'.
+         at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+         at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
+      An unhandled exception has occurred while executing the request.
+      Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: Customers'.
+         at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+         at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+         at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+         at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+         at ShopManagementSystem.Infrastructure.Repositories.Repository`1.GetByIdAsync(Int32 id) in /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Infrastructure/Repositories/Repository.cs:line 21
+         at ShopManagementSystem.Application.Handlers.CreateSaleHandler.Handle(CreateSaleCommand request, CancellationToken cancellationToken) in /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/Handlers/CreateSaleHandler.cs:line 32
+         at ShopManagementSystem.Application.Handlers.CreateSaleHandler.Handle(CreateSaleCommand request, CancellationToken cancellationToken) in /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.Application/Handlers/CreateSaleHandler.cs:line 109
+         at ShopManagementSystem.API.Controllers.SalesController.CreateBulkSale(CreateSaleDto createSaleDto) in /mnt/Windows/Projects/shop_management_system/backend-dotnetcore/ShopManagementSystem.API/Controllers/SalesController.cs:line 62
+         at lambda_method42(Closure, Object)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+         at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

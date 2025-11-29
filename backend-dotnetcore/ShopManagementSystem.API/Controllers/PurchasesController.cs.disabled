@@ -1,0 +1,202 @@
+using Microsoft.AspNetCore.Mvc;
+using ShopManagementSystem.Application.DTOs;
+using ShopManagementSystem.Application.Services;
+using ShopManagementSystem.Domain.Entities;
+using ShopManagementSystem.Domain.Interfaces;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace ShopManagementSystem.API.Controllers;
+
+[ApiController]
+[Route("api/purchases")]
+[SwaggerTag("Purchase management endpoints")]
+public class PurchasesController : ControllerBase
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrencyExchangeService _currencyExchangeService;
+
+    public PurchasesController(IUnitOfWork unitOfWork, ICurrencyExchangeService currencyExchangeService)
+    {
+        _unitOfWork = unitOfWork;
+        _currencyExchangeService = currencyExchangeService;
+    }
+
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "Get all purchases",
+        Description = "Retrieves a list of all purchases"
+    )]
+    [SwaggerResponse(200, "Purchases retrieved successfully", typeof(IEnumerable<Purchase>))]
+    public async Task<ActionResult<IEnumerable<Purchase>>> GetPurchases()
+    {
+        var purchases = await _unitOfWork.Purchases.GetAllAsync();
+        return Ok(purchases);
+    }
+
+    [HttpGet("{id}")]
+    [SwaggerOperation(Summary = "Get purchase by ID")]
+    public async Task<ActionResult<Purchase>> GetPurchase(int id)
+    {
+        var purchase = await _unitOfWork.Purchases.GetByIdAsync(id);
+        if (purchase == null) return NotFound();
+        return Ok(purchase);
+    }
+
+    [HttpPost("bulk-create")]
+    [SwaggerOperation(
+        Summary = "Create bulk purchase",
+        Description = "Creates a new purchase with multiple items"
+    )]
+    [SwaggerResponse(201, "Purchase created successfully", typeof(Purchase))]
+    public async Task<ActionResult<Purchase>> CreateBulkPurchase(
+        [FromBody, SwaggerParameter("Purchase data")] CreatePurchaseDto createPurchaseDto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        
+        try
+        {
+            // Get currency
+            var currency = await _unitOfWork.Currencies.GetByIdAsync(createPurchaseDto.CurrencyId);
+            if (currency == null)
+                throw new ArgumentException($"Currency with ID '{createPurchaseDto.CurrencyId}' not found");
+
+            // Convert to base currency (Afghani)
+            var totalAmount = createPurchaseDto.TotalAmount;
+            var baseCurrencyAmount = await _currencyExchangeService.ConvertToAfghaniAsync(totalAmount, currency.Id);
+            var exchangeRateUsed = await _currencyExchangeService.GetExchangeRateToAfghaniAsync(currency.Id);
+            
+            // Create transaction first
+            var transaction = new Transaction
+            {
+                Type = Domain.Enums.TransactionType.Purchase,
+                PartyType = Domain.Enums.PartyType.Supplier,
+                PartyId = createPurchaseDto.SupplierId,
+                CurrencyId = currency.Id,
+                OriginalAmount = totalAmount,
+                ExchangeRateUsed = exchangeRateUsed,
+                AmountInBaseCurrency = baseCurrencyAmount,
+                Notes = $"Purchase from supplier {createPurchaseDto.SupplierId}"
+            };
+
+            var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Create purchase
+            var purchase = new Purchase
+            {
+                TransactionId = createdTransaction.Id,
+                SupplierId = createPurchaseDto.SupplierId,
+                CurrencyId = createPurchaseDto.CurrencyId,
+                PaymentStatusId = createPurchaseDto.PaymentStatusId,
+                TotalAmount = totalAmount
+            };
+
+            // Add items
+            foreach (var itemDto in createPurchaseDto.Items)
+            {
+                purchase.Items.Add(new PurchaseItem
+                {
+                    ProductId = itemDto.ProductId,
+                    CurrencyId = currency.Id,
+                    Quantity = itemDto.Quantity,
+                    UnitPrice = itemDto.UnitPrice,
+                    TotalPrice = itemDto.TotalPrice
+                });
+            }
+
+            var createdPurchase = await _unitOfWork.Purchases.AddAsync(purchase);
+            await _unitOfWork.SaveChangesAsync();
+            
+            await _unitOfWork.CommitTransactionAsync();
+            return CreatedAtAction(nameof(GetPurchase), new { id = createdPurchase.Id }, createdPurchase);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    [HttpPut("bulk-update/{id}")]
+    [SwaggerOperation(Summary = "Update bulk purchase")]
+    public async Task<ActionResult<Purchase>> UpdateBulkPurchase(int id, [FromBody] CreatePurchaseDto updatePurchaseDto)
+    {
+        var existingPurchase = await _unitOfWork.Purchases.GetByIdAsync(id);
+        if (existingPurchase == null) return NotFound();
+
+        existingPurchase.SupplierId = updatePurchaseDto.SupplierId;
+        existingPurchase.CurrencyId = updatePurchaseDto.CurrencyId;
+        existingPurchase.PaymentStatusId = updatePurchaseDto.PaymentStatusId;
+        existingPurchase.TotalAmount = updatePurchaseDto.TotalAmount;
+        existingPurchase.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Purchases.UpdateAsync(existingPurchase);
+        await _unitOfWork.SaveChangesAsync();
+        return Ok(existingPurchase);
+    }
+
+    [HttpPost("returns/bulk-create")]
+    [SwaggerOperation(Summary = "Create bulk purchase return")]
+    public async Task<ActionResult<Purchase>> CreateBulkPurchaseReturn([FromBody] CreatePurchaseDto createPurchaseDto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        
+        try
+        {
+            var currency = await _unitOfWork.Currencies.GetByIdAsync(createPurchaseDto.CurrencyId);
+            if (currency == null)
+                throw new ArgumentException($"Currency with ID '{createPurchaseDto.CurrencyId}' not found");
+
+            var totalAmount = createPurchaseDto.TotalAmount;
+            var baseCurrencyAmount = await _currencyExchangeService.ConvertToAfghaniAsync(totalAmount, currency.Id);
+            var exchangeRateUsed = await _currencyExchangeService.GetExchangeRateToAfghaniAsync(currency.Id);
+            
+            var transaction = new Transaction
+            {
+                Type = Domain.Enums.TransactionType.ReturnPurchase,
+                PartyType = Domain.Enums.PartyType.Supplier,
+                PartyId = createPurchaseDto.SupplierId,
+                CurrencyId = currency.Id,
+                OriginalAmount = -totalAmount, // Negative for return
+                ExchangeRateUsed = exchangeRateUsed,
+                AmountInBaseCurrency = -baseCurrencyAmount,
+                Notes = "Purchase Return"
+            };
+
+            var createdTransaction = await _unitOfWork.Transactions.AddAsync(transaction);
+            await _unitOfWork.SaveChangesAsync();
+
+            var purchase = new Purchase
+            {
+                TransactionId = createdTransaction.Id,
+                SupplierId = createPurchaseDto.SupplierId,
+                CurrencyId = createPurchaseDto.CurrencyId,
+                PaymentStatusId = createPurchaseDto.PaymentStatusId,
+                TotalAmount = totalAmount
+            };
+
+            var createdPurchase = await _unitOfWork.Purchases.AddAsync(purchase);
+            await _unitOfWork.SaveChangesAsync();
+            
+            await _unitOfWork.CommitTransactionAsync();
+            return CreatedAtAction(nameof(GetPurchase), new { id = createdPurchase.Id }, createdPurchase);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete purchase")]
+    public async Task<ActionResult> DeletePurchase(int id)
+    {
+        var purchase = await _unitOfWork.Purchases.GetByIdAsync(id);
+        if (purchase == null) return NotFound();
+
+        await _unitOfWork.Purchases.DeleteAsync(purchase);
+        await _unitOfWork.SaveChangesAsync();
+        return NoContent();
+    }
+}

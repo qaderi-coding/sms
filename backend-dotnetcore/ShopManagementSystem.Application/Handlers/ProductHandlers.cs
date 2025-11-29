@@ -98,7 +98,9 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Produc
             CategoryId = request.Request.CategoryId,
             CompanyId = request.Request.CompanyId,
             BikeModelId = request.Request.BikeModelId,
-            BaseUnitId = request.Request.BaseUnitId
+            BaseUnitId = request.Request.BaseUnitId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         var created = await _unitOfWork.Products.AddAsync(product);
@@ -140,6 +142,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Produc
         var product = await _unitOfWork.Products.GetByIdAsync(request.Id);
         if (product == null) throw new KeyNotFoundException();
 
+        // Update only the fields from request, preserve audit fields
         product.Name = request.Request.Name;
         product.Sku = request.Request.Sku;
         product.Price = request.Request.Price;
@@ -150,6 +153,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Produc
         product.BikeModelId = request.Request.BikeModelId;
         product.BaseUnitId = request.Request.BaseUnitId;
         product.UpdatedAt = DateTime.UtcNow;
+        // CreatedAt is preserved
 
         await _unitOfWork.Products.UpdateAsync(product);
         await _unitOfWork.SaveChangesAsync();

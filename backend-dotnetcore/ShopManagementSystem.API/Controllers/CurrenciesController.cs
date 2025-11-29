@@ -53,7 +53,20 @@ public class CurrenciesController : ControllerBase
         existingCurrency.Code = currency.Code;
         existingCurrency.Name = currency.Name;
         existingCurrency.Symbol = currency.Symbol;
+        existingCurrency.IsActive = currency.IsActive;
+        existingCurrency.IsBaseCurrency = currency.IsBaseCurrency;
         existingCurrency.UpdatedAt = DateTime.UtcNow;
+
+        // Ensure only one base currency
+        if (currency.IsBaseCurrency)
+        {
+            var allCurrencies = await _unitOfWork.Currencies.GetAllAsync();
+            foreach (var curr in allCurrencies.Where(c => c.Id != id && c.IsBaseCurrency))
+            {
+                curr.IsBaseCurrency = false;
+                await _unitOfWork.Currencies.UpdateAsync(curr);
+            }
+        }
 
         await _unitOfWork.Currencies.UpdateAsync(existingCurrency);
         await _unitOfWork.SaveChangesAsync();
