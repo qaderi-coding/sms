@@ -5,8 +5,8 @@ import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import AuthGuard from 'utils/route-guard/AuthGuard';
 import { CategoryForm, CategoryPage } from '@/apps/administration/category';
-import { 
-  CompanyPage, 
+import {
+  CompanyPage,
   CompanyForm,
   UnitPage,
   UnitForm,
@@ -17,11 +17,7 @@ import {
   ProductUnitConversionPage,
   ProductUnitConversionForm
 } from '@/apps/inventory';
-import {
-  SalePage,
-  SaleForm,
-  SaleReturnForm
-} from '@/apps/sales';
+import { SalePage, SaleForm } from '@/apps/sales';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -83,10 +79,9 @@ const MainRoutes = {
     {
       path: 'sales',
       children: [
-        { index: true, element: <SalePage /> },
         { path: 'create', element: <SaleForm /> },
         { path: 'edit/:id', element: <SaleForm /> },
-        { path: 'return/:id', element: <SaleReturnForm /> },
+        // { path: 'return/:id', element: <SaleReturnForm /> },
         { path: 'print/:id', element: <InvoicePrint /> }
       ]
     },

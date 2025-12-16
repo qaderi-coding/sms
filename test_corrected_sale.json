@@ -1,0 +1,15 @@
+{
+    "customerId": 1,
+    "date": "2025-11-29T00:00:00",
+    "cashReceived": 350,
+    "currencyId": 1,
+    "notes": "Corrected sale with valid data - Issue was itemId: 0 and price: 0",
+    "items": [
+        {
+            "itemId": 4,
+            "qty": 1,
+            "price": 350,
+            "total": 350
+        }
+    ]
+}
